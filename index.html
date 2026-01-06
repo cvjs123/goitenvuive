@@ -22,7 +22,7 @@
     #hand-canvas { z-index: 10; transform: scaleX(-1); }
     #bees-canvas { z-index: 20; }
 
-    #manage-btn, #question-btn {
+    #manage-btn, #question-btn, #toggle-music-btn {
       position: fixed; top: 20px;
       padding: 12px 20px; font-size: 18px; font-weight: bold;
       background: rgba(0, 200, 0, 0.9); color: white;
@@ -32,7 +32,13 @@
     }
     #manage-btn { left: 20px; }
     #question-btn { right: 20px; }
+    #toggle-music-btn { 
+      left: 50%; transform: translateX(-50%); 
+      padding: 10px 18px; font-size: 16px; 
+      background: rgba(0, 150, 255, 0.9);
+    }
     #manage-btn:hover, #question-btn:hover { background: #00ff00; }
+    #toggle-music-btn:hover { background: rgba(0, 180, 255, 1); }
 
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -130,6 +136,7 @@
 
   <button id="manage-btn">📝 Quản Lý Danh Sách</button>
   <button id="question-btn">❓ Câu Hỏi</button>
+  <button id="toggle-music-btn">🎵 Nhạc nền: Bật</button>
 
   <div id="unlock-screen">
     <div>
@@ -188,21 +195,26 @@
     </div>
   </div>
 
-  <!-- Âm thanh đã sửa -->
+  <!-- Âm thanh hiệu ứng -->
   <audio id="buzz-sound" loop preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-insect-buzz-1167.mp3" type="audio/mpeg">
+    <source src="assets/sounds/bee-buzz.mp3" type="audio/mpeg">
   </audio>
   <audio id="select-sound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" type="audio/mpeg">
+    <source src="assets/sounds/select-bell.mp3" type="audio/mpeg">
   </audio>
   <audio id="cheer-sound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-small-group-cheer-488.mp3" type="audio/mpeg">
+    <source src="assets/sounds/cheer-applause.mp3" type="audio/mpeg">
   </audio>
   <audio id="correct-sound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg">
+    <source src="assets/sounds/correct-ding.mp3" type="audio/mpeg">
   </audio>
   <audio id="wrong-sound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-932.mp3" type="audio/mpeg">
+    <source src="assets/sounds/wrong-buzzer.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Nhạc nền mới thêm -->
+  <audio id="background-music" loop preload="auto">
+    <source src="assets/sounds/background-forest-treasure.mp3" type="audio/mpeg">
   </audio>
 
   <script type="module">
@@ -223,18 +235,48 @@
     const cheerAudio = document.getElementById('cheer-sound');
     const correctAudio = document.getElementById('correct-sound');
     const wrongAudio = document.getElementById('wrong-sound');
-    buzzAudio.volume = 0.6;  // điều chỉnh âm lượng ong vừa tai
+    const bgMusic = document.getElementById('background-music');
+
+    // Âm lượng hiệu ứng
+    buzzAudio.volume = 0.8;
+    selectAudio.volume = 1.0;
+    cheerAudio.volume = 1.0;
+    correctAudio.volume = 1.0;
+    wrongAudio.volume = 0.9;
+    bgMusic.volume = 0.3; // Nhạc nền nhẹ
 
     let audioUnlocked = false;
+    let musicEnabled = true;
+
     const unlockAudio = () => {
       if (audioUnlocked) return;
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       ctx.resume().then(() => {
         audioUnlocked = true;
         document.getElementById('unlock-screen').style.display = 'none';
+
+        // Phát nhạc nền khi unlock
+        if (musicEnabled) {
+          bgMusic.play().catch(() => {});
+        }
       });
     };
     document.getElementById('unlock-screen').onclick = unlockAudio;
+
+    // Nút bật/tắt nhạc nền
+    const toggleMusicBtn = document.getElementById('toggle-music-btn');
+    toggleMusicBtn.addEventListener('click', () => {
+      musicEnabled = !musicEnabled;
+      if (musicEnabled) {
+        bgMusic.play().catch(() => {});
+        toggleMusicBtn.textContent = '🎵 Nhạc nền: Bật';
+        toggleMusicBtn.style.background = 'rgba(0, 150, 255, 0.9)';
+      } else {
+        bgMusic.pause();
+        toggleMusicBtn.textContent = '🎵 Nhạc nền: Tắt';
+        toggleMusicBtn.style.background = 'rgba(150, 150, 150, 0.8)';
+      }
+    });
 
     const defaultStudents = [
       "Nguyễn Văn An", "Trần Thị Bình", "Lê Văn Cường", "Phạm Thị Dung", "Hoàng Văn Em",
@@ -245,7 +287,6 @@
     let students = JSON.parse(localStorage.getItem('beeStudents')) || [...defaultStudents];
     let questions = JSON.parse(localStorage.getItem('beeQuestions')) || [];
 
-    // Biến cho quiz
     let quizQueue = [];
     let currentQuizIndex = 0;
     let currentQuiz = null;
@@ -307,7 +348,6 @@
       if (e.target === questionModal) questionModal.style.display = 'none';
     });
 
-    // Quản lý câu hỏi
     document.getElementById('add-question-btn').addEventListener('click', () => {
       const question = document.getElementById('new-question').value.trim();
       const a = document.getElementById('option-a').value.trim();
@@ -338,7 +378,6 @@
       }
     });
 
-    // Quản lý học sinh
     document.getElementById('add-btn').addEventListener('click', () => {
       const name = document.getElementById('new-name').value.trim();
       if (name && !students.includes(name)) {
@@ -405,7 +444,6 @@
       reader.readAsBinaryString(file);
     });
 
-    // Quiz elements
     const quizQuestion = document.getElementById('quiz-question');
     const quizOptions = document.getElementById('quiz-options');
     const optionButtons = document.querySelectorAll('.quiz-option');
@@ -416,7 +454,6 @@
     let selectedStudent = null;
     let selectTime = 0;
 
-    // Xử lý chọn đáp án
     optionButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const choice = btn.dataset.choice;
@@ -526,7 +563,7 @@
           if (gesture === "Open_Palm" && !rolling && !inQuizMode) {
             rolling = true;
             if (audioUnlocked) {
-              buzzAudio.volume = 0.6;
+              buzzAudio.volume = 0.8;
               buzzAudio.play().catch(() => {});
             }
           }
