@@ -260,7 +260,7 @@
           bgMusic.play().catch(() => {});
         }
 
-        // Khởi động ngầm tất cả âm thanh để browser cho phép phát sau
+        // Khởi động ngầm tất cả âm thanh hiệu ứng
         const soundsToPrime = [buzzAudio, selectAudio, cheerAudio, correctAudio, wrongAudio];
         soundsToPrime.forEach(sound => {
           sound.play().then(() => {
@@ -357,7 +357,6 @@
       if (e.target === questionModal) questionModal.style.display = 'none';
     });
 
-    // Quản lý câu hỏi và học sinh (giữ nguyên toàn bộ như trước)
     document.getElementById('add-question-btn').addEventListener('click', () => {
       const question = document.getElementById('new-question').value.trim();
       const a = document.getElementById('option-a').value.trim();
@@ -500,7 +499,7 @@
           if (currentQuizIndex >= quizQueue.length) {
             quizQuestion.textContent = "Hoàn thành tất cả câu hỏi! 🎉";
             quizQuestion.classList.add('show');
-            if (audioUnlocked) cheerAudio.play().catch(() => {}); // Phát vỗ tay khi hoàn thành
+            if (audioUnlocked) cheerAudio.play().catch(() => {});  // Vỗ tay khi hoàn thành quiz
             setTimeout(() => quizQuestion.classList.remove('show'), 5000);
             quizStarted = false;
             quizQueue = [];
