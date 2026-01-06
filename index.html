@@ -125,8 +125,16 @@
       z-index: 300; color: white; font-size: 30px; text-align: center;
       flex-direction: column; cursor: pointer;
     }
+
+    /* Màu đỏ cho đáp án đúng trong danh sách */
+    .correct-answer {
+      color: #d00;
+      font-weight: bold;
+    }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <!-- Thư viện đọc file Word .docx -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 </head>
 <body>
   <div id="bg"></div>
@@ -190,6 +198,12 @@
       </select>
       <button class="add-btn" id="add-question-btn">➕ Thêm Câu Hỏi</button>
       
+      <hr style="margin: 25px 0;">
+      <label><strong>📂 Nhập từ file JSON, TXT hoặc Word (.docx)</strong></label>
+      <input type="file" id="questions-file" accept=".json,.txt,.docx">
+      <button class="import-btn" id="import-questions-btn">⬆️ Nhập Từ File</button>
+      <button class="sample-btn" id="sample-questions-btn">📥 Tải File Mẫu JSON</button>
+      
       <ul id="question-list"></ul>
       <button class="clear-all-btn" id="clear-questions-btn">🗑️ Xóa Tất Cả Câu Hỏi</button>
     </div>
@@ -237,7 +251,6 @@
     const wrongAudio = document.getElementById('wrong-sound');
     const bgMusic = document.getElementById('background-music');
 
-    // Âm lượng
     buzzAudio.volume = 0.8;
     selectAudio.volume = 1.0;
     cheerAudio.volume = 1.0;
@@ -260,7 +273,6 @@
           bgMusic.play().catch(() => {});
         }
 
-        // Khởi động ngầm tất cả âm thanh hiệu ứng
         const soundsToPrime = [buzzAudio, selectAudio, cheerAudio, correctAudio, wrongAudio];
         soundsToPrime.forEach(sound => {
           sound.play().then(() => {
@@ -272,7 +284,6 @@
     };
     document.getElementById('unlock-screen').onclick = unlockAudio;
 
-    // Nút toggle nhạc nền
     const toggleMusicBtn = document.getElementById('toggle-music-btn');
     toggleMusicBtn.addEventListener('click', () => {
       musicEnabled = !musicEnabled;
@@ -301,9 +312,281 @@
     let currentQuiz = null;
     let quizStarted = false;
 
-    // Các hàm update list, modal... giữ nguyên (như file trước)
+    function updateStudentList() {
+      const list = document.getElementById('student-list');
+      list.innerHTML = students.length === 0 ? '<li style="text-align:center;color:#999;">(Chưa có học sinh nào)</li>' : '';
+      students.forEach((name, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${name}</span><button class="del-btn" data-index="${i}">🗑️ Xóa</button>`;
+        list.appendChild(li);
+      });
+      document.querySelectorAll('#student-list .del-btn').forEach(btn => {
+        btn.onclick = () => {
+          students.splice(btn.dataset.index, 1);
+          localStorage.setItem('beeStudents', JSON.stringify(students));
+          updateStudentList();
+        };
+      });
+    }
 
-    // ... (toàn bộ code quản lý danh sách, câu hỏi, import Excel giữ nguyên)
+    function updateQuestionList() {
+      const list = document.getElementById('question-list');
+      list.innerHTML = questions.length === 0 ? '<li style="text-align:center;color:#999;">(Chưa có câu hỏi nào)</li>' : '';
+      questions.forEach((q, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div><strong>${q.question}</strong><br>
+          A: ${q.a} | B: ${q.b} | C: ${q.c} | D: ${q.d}<br>
+          <small>Đáp án đúng: <span class="correct-answer">${q.correct}</span></small></div>
+          <button class="del-btn" data-index="${i}">🗑️ Xóa</button>`;
+        list.appendChild(li);
+      });
+      document.querySelectorAll('#question-list .del-btn').forEach(btn => {
+        btn.onclick = () => {
+          questions.splice(btn.dataset.index, 1);
+          localStorage.setItem('beeQuestions', JSON.stringify(questions));
+          updateQuestionList();
+        };
+      });
+    }
+
+    const modal = document.getElementById('modal');
+    const questionModal = document.getElementById('question-modal');
+
+    document.getElementById('manage-btn').addEventListener('click', () => {
+      modal.style.display = 'flex';
+      updateStudentList();
+    });
+
+    document.getElementById('question-btn').addEventListener('click', () => {
+      questionModal.style.display = 'flex';
+      updateQuestionList();
+    });
+
+    document.querySelector('#modal .close').addEventListener('click', () => modal.style.display = 'none');
+    document.querySelector('#question-modal .close').addEventListener('click', () => questionModal.style.display = 'none');
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+      if (e.target === questionModal) questionModal.style.display = 'none';
+    });
+
+    document.getElementById('add-question-btn').addEventListener('click', () => {
+      const question = document.getElementById('new-question').value.trim();
+      const a = document.getElementById('option-a').value.trim();
+      const b = document.getElementById('option-b').value.trim();
+      const c = document.getElementById('option-c').value.trim();
+      const d = document.getElementById('option-d').value.trim();
+      const correct = document.getElementById('correct-answer').value;
+      if (question && a && b && c && d && correct) {
+        questions.push({ question, a, b, c, d, correct });
+        localStorage.setItem('beeQuestions', JSON.stringify(questions));
+        document.getElementById('new-question').value = '';
+        document.getElementById('option-a').value = '';
+        document.getElementById('option-b').value = '';
+        document.getElementById('option-c').value = '';
+        document.getElementById('option-d').value = '';
+        document.getElementById('correct-answer').value = '';
+        updateQuestionList();
+      } else {
+        alert("Vui lòng điền đầy đủ!");
+      }
+    });
+
+    document.getElementById('clear-questions-btn').addEventListener('click', () => {
+      if (confirm('Xóa tất cả câu hỏi?')) {
+        questions = [];
+        localStorage.setItem('beeQuestions', JSON.stringify(questions));
+        updateQuestionList();
+      }
+    });
+
+    // Các hàm quản lý học sinh giữ nguyên...
+
+    document.getElementById('add-btn').addEventListener('click', () => {
+      const name = document.getElementById('new-name').value.trim();
+      if (name && !students.includes(name)) {
+        students.push(name);
+        localStorage.setItem('beeStudents', JSON.stringify(students));
+        document.getElementById('new-name').value = '';
+        updateStudentList();
+      }
+    });
+    document.getElementById('new-name').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('add-btn').click();
+    });
+
+    document.getElementById('clear-all-btn').addEventListener('click', () => {
+      if (confirm('Xóa toàn bộ danh sách hiện tại?')) {
+        students = [];
+        localStorage.setItem('beeStudents', JSON.stringify(students));
+        updateStudentList();
+      }
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      if (confirm('Khôi phục danh sách mặc định?')) {
+        students = [...defaultStudents];
+        localStorage.removeItem('beeStudents');
+        updateStudentList();
+      }
+    });
+
+    document.getElementById('sample-btn').addEventListener('click', () => {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([["Tên học sinh"], ...defaultStudents.slice(0,10).map(n => [n])]);
+      ws['!cols'] = [{ wch: 35 }];
+      XLSX.utils.book_append_sheet(wb, ws, "Danh sách");
+      XLSX.writeFile(wb, "mau_danh_sach_hoc_sinh.xlsx");
+    });
+
+    document.getElementById('import-btn').addEventListener('click', () => {
+      const file = document.getElementById('excel-file').files[0];
+      if (!file) return alert('Vui lòng chọn file Excel!');
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = e.target.result;
+          const wb = XLSX.read(data, { type: 'binary' });
+          const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
+          let added = 0;
+          json.forEach(row => {
+            if (row[0]) {
+              const name = String(row[0]).trim();
+              if (name && !students.includes(name)) {
+                students.push(name);
+                added++;
+              }
+            }
+          });
+          localStorage.setItem('beeStudents', JSON.stringify(students));
+          updateStudentList();
+          alert(`Đã thêm ${added} học sinh mới!`);
+        } catch (err) {
+          alert("Lỗi đọc file: " + err.message);
+        }
+      };
+      reader.readAsBinaryString(file);
+    });
+
+    // Nhập câu hỏi từ file JSON/TXT/Word
+    document.getElementById('import-questions-btn').addEventListener('click', () => {
+      const fileInput = document.getElementById('questions-file');
+      const file = fileInput.files[0];
+      if (!file) return alert('Vui lòng chọn file!');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let newQuestions = [];
+
+        if (file.name.endsWith('.json')) {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (!Array.isArray(data)) throw new Error('File JSON phải là một mảng các câu hỏi!');
+            newQuestions = data.map(q => ({
+              question: q.question?.trim() || '',
+              a: q.a?.trim() || '',
+              b: q.b?.trim() || '',
+              c: q.c?.trim() || '',
+              d: q.d?.trim() || '',
+              correct: String(q.correct || '').toUpperCase()
+            })).filter(q => q.question && q.a && q.b && q.c && q.d && ['A','B','C','D'].includes(q.correct));
+          } catch (err) {
+            return alert('Lỗi đọc file JSON: ' + err.message);
+          }
+
+        } else if (file.name.endsWith('.txt')) {
+          const content = e.target.result;
+          const blocks = content.split(/\n\s*\n/).filter(b => b.trim());
+          for (const block of blocks) {
+            const lines = block.split('\n').map(l => l.trim());
+            let q = { question: '', a: '', b: '', c: '', d: '', correct: '' };
+            for (const line of lines) {
+              if (line.startsWith('Câu hỏi:')) q.question = line.replace('Câu hỏi:', '').trim();
+              else if (line.startsWith('A:')) q.a = line.replace('A:', '').trim();
+              else if (line.startsWith('B:')) q.b = line.replace('B:', '').trim();
+              else if (line.startsWith('C:')) q.c = line.replace('C:', '').trim();
+              else if (line.startsWith('D:')) q.d = line.replace('D:', '').trim();
+              else if (line.match(/Đáp án( đúng)?:/i)) q.correct = line.replace(/Đáp án( đúng)?:/i, '').trim().toUpperCase();
+            }
+            if (q.question && q.a && q.b && q.c && q.d && ['A','B','C','D'].includes(q.correct)) {
+              newQuestions.push(q);
+            }
+          }
+
+        } else if (file.name.endsWith('.docx')) {
+          mammoth.convertToHtml({arrayBuffer: e.target.result})
+            .then(result => {
+              const text = result.value.replace(/<[^>]*>/g, '\n').replace(/\n\n+/g, '\n\n').trim();
+              const blocks = text.split(/\n\s*\n/).filter(b => b.trim());
+              for (const block of blocks) {
+                const lines = block.split('\n').map(l => l.trim());
+                let q = { question: '', a: '', b: '', c: '', d: '', correct: '' };
+                for (const line of lines) {
+                  if (line.startsWith('Câu hỏi:')) q.question = line.replace('Câu hỏi:', '').trim();
+                  else if (line.startsWith('A:')) q.a = line.replace('A:', '').trim();
+                  else if (line.startsWith('B:')) q.b = line.replace('B:', '').trim();
+                  else if (line.startsWith('C:')) q.c = line.replace('C:', '').trim();
+                  else if (line.startsWith('D:')) q.d = line.replace('D:', '').trim();
+                  else if (line.match(/Đáp án( đúng)?:/i)) q.correct = line.replace(/Đáp án( đúng)?:/i, '').trim().toUpperCase();
+                }
+                if (q.question && q.a && q.b && q.c && q.d && ['A','B','C','D'].includes(q.correct)) {
+                  newQuestions.push(q);
+                }
+              }
+              finalizeImport(newQuestions);
+            })
+            .catch(err => alert('Lỗi đọc file Word: ' + err.message));
+          return;
+        } else {
+          return alert('Chỉ hỗ trợ file .json, .txt hoặc .docx!');
+        }
+
+        finalizeImport(newQuestions);
+      };
+
+      if (file.name.endsWith('.docx')) {
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.readAsText(file);
+      }
+    });
+
+    function finalizeImport(newQuestions) {
+      if (newQuestions.length === 0) return alert('Không tìm thấy câu hỏi hợp lệ nào trong file!');
+
+      let added = 0;
+      newQuestions.forEach(nq => {
+        const exists = questions.some(eq => 
+          eq.question === nq.question && eq.a === nq.a && eq.b === nq.b && eq.c === nq.c && eq.d === nq.d && eq.correct === nq.correct
+        );
+        if (!exists) {
+          questions.push(nq);
+          added++;
+        }
+      });
+
+      localStorage.setItem('beeQuestions', JSON.stringify(questions));
+      updateQuestionList();
+      alert(`Đã thêm ${added} câu hỏi mới (tổng cộng ${questions.length} câu)!`);
+      document.getElementById('questions-file').value = '';
+    }
+
+    document.getElementById('sample-questions-btn').addEventListener('click', () => {
+      const sampleData = [
+        { "question": "Thủ đô của Việt Nam là gì?", "a": "Hà Nội", "b": "TP.HCM", "c": "Đà Nẵng", "d": "Huế", "correct": "A" },
+        { "question": "1 + 1 = ?", "a": "1", "b": "2", "c": "3", "d": "4", "correct": "B" }
+      ];
+      const blob = new Blob([JSON.stringify(sampleData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mau_cau_hoi_trac_nghiem.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Phần còn lại (quiz, gesture, loop...) giữ nguyên như phiên bản trước
 
     const quizQuestion = document.getElementById('quiz-question');
     const quizOptions = document.getElementById('quiz-options');
@@ -351,7 +634,7 @@
           if (currentQuizIndex >= quizQueue.length) {
             quizQuestion.textContent = "Hoàn thành tất cả câu hỏi! 🎉";
             quizQuestion.classList.add('show');
-            if (audioUnlocked) cheerAudio.play().catch(() => {});  // Vỗ tay chỉ khi hoàn thành quiz
+            if (audioUnlocked) cheerAudio.play().catch(() => {});
             setTimeout(() => quizQuestion.classList.remove('show'), 5000);
             quizStarted = false;
             quizQueue = [];
@@ -374,58 +657,169 @@
     window.onresize = resize;
 
     async function init() {
-      // giữ nguyên
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        video.srcObject = stream;
+        await video.play();
+        resize();
+
+        const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+        recognizer = await GestureRecognizer.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/latest/gesture_recognizer.task",
+            delegate: "GPU"
+          },
+          runningMode: "VIDEO",
+          numHands: 2,
+          minHandDetectionConfidence: 0.4,
+          minTrackingConfidence: 0.4
+        });
+
+        requestAnimationFrame(loop);
+      } catch (err) {
+        alert("Lỗi khởi động camera: " + err.message + "\nỨng dụng vẫn chạy nhưng không nhận diện tay.");
+        requestAnimationFrame(loop);
+      }
     }
 
     function loop(time) {
-      // ... giữ nguyên phần đầu
+      if (!recognizer) {
+        requestAnimationFrame(loop);
+        return;
+      }
 
-      if (results.gestures.length > 0) {
-        const gesture = results.gestures[0][0].categoryName;
-        if (gesture === "Open_Palm" && !rolling && !inQuizMode) {
-          rolling = true;
-          if (audioUnlocked) {
-            buzzAudio.play().catch(() => {});
+      const results = recognizer.recognizeForVideo(video, time);
+
+      handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+      handCtx.drawImage(video, 0, 0, handCanvas.width, handCanvas.height);
+
+      if (results.landmarks.length > 0) {
+        unlockAudio();
+
+        const lm = results.landmarks[0];
+        drawingUtils.drawConnectors(lm, GestureRecognizer.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 5 });
+        drawingUtils.drawLandmarks(lm, { color: '#FFFFFF', radius: 8 });
+
+        targetHandX = (1 - lm[9].x) * innerWidth;
+        targetHandY = lm[9].y * innerHeight;
+
+        if (results.gestures.length > 0) {
+          const gesture = results.gestures[0][0].categoryName;
+          if (gesture === "Open_Palm" && !rolling && !inQuizMode) {
+            rolling = true;
+            if (audioUnlocked) {
+              buzzAudio.play().catch(() => {});
+            }
           }
-        }
-        if (gesture === "Pointing_Up" && rolling) {
-          rolling = false;
-          buzzAudio.pause();
-          buzzAudio.currentTime = 0;
-          selectTime = Date.now();
-          questionShown = false;
-          questionShowTime = Date.now() + 3000;
+          if (gesture === "Pointing_Up" && rolling) {
+            rolling = false;
+            buzzAudio.pause();
+            buzzAudio.currentTime = 0;
+            selectTime = Date.now();
+            questionShown = false;
+            questionShowTime = Date.now() + 3000;
 
-          selectedStudent = students[Math.floor(Math.random() * students.length)];
+            selectedStudent = students[Math.floor(Math.random() * students.length)];
 
-          // CHỈ PHÁT TIẾNG CHUÔNG KHI CHỌN HỌC SINH
-          if (audioUnlocked) {
-            selectAudio.play().catch(() => {});
-          }
-
-          if (questions.length > 0) {
-            if (!quizStarted) {
-              quizQueue = [...questions].sort(() => Math.random() - 0.5);
-              currentQuizIndex = 0;
-              quizStarted = true;
+            if (audioUnlocked) {
+              selectAudio.play().catch(() => {});
             }
 
-            if (currentQuizIndex < quizQueue.length) {
-              currentQuiz = quizQueue[currentQuizIndex];
+            if (questions.length > 0) {
+              if (!quizStarted) {
+                quizQueue = [...questions].sort(() => Math.random() - 0.5);
+                currentQuizIndex = 0;
+                quizStarted = true;
+              }
 
-              optionButtons.forEach(b => {
-                b.textContent = '';
-                b.classList.remove('correct', 'wrong');
-                b.style.pointerEvents = 'none';
-              });
+              if (currentQuizIndex < quizQueue.length) {
+                currentQuiz = quizQueue[currentQuizIndex];
 
-              inQuizMode = true;
+                optionButtons.forEach(b => {
+                  b.textContent = '';
+                  b.classList.remove('correct', 'wrong');
+                  b.style.pointerEvents = 'none';
+                });
+
+                inQuizMode = true;
+              }
             }
           }
         }
       }
 
-      // ... phần còn lại của loop giữ nguyên
+      if (inQuizMode && !questionShown && Date.now() > questionShowTime) {
+        quizQuestion.textContent = `Câu ${currentQuizIndex + 1}/${quizQueue.length}: ${currentQuiz.question}`;
+        quizQuestion.classList.add('show');
+
+        optionButtons[0].textContent = `A. ${currentQuiz.a}`;
+        optionButtons[1].textContent = `B. ${currentQuiz.b}`;
+        optionButtons[2].textContent = `C. ${currentQuiz.c}`;
+        optionButtons[3].textContent = `D. ${currentQuiz.d}`;
+        optionButtons.forEach(b => b.style.pointerEvents = 'all');
+        quizOptions.classList.add('show');
+        questionShown = true;
+      }
+
+      handX += (targetHandX - handX) * 0.3;
+      handY += (targetHandY - handY) * 0.3;
+
+      if (rolling && students.length > 0 && time - lastRoll > 200) {
+        selectedStudent = students[Math.floor(Math.random() * students.length)];
+        lastRoll = time;
+      }
+
+      beesCtx.clearRect(0, 0, innerWidth, innerHeight);
+
+      const isShowing = selectTime && Date.now() - selectTime < 9000;
+      if ((rolling || isShowing || inQuizMode) && students.length > 0) {
+        students.forEach((name, i) => {
+          let x, y, scale = 1, rot = 0, flap = 1, alpha = 1;
+          if (name === selectedStudent && (isShowing || inQuizMode)) {
+            const progress = Math.min((Date.now() - selectTime) / 600, 1);
+            scale = 0.5 + progress * 2;
+            rot = progress * 720;
+            x = innerWidth / 2;
+            y = innerHeight / 2;
+          } else if (rolling) {
+            const angle = (i / students.length) * Math.PI * 2 + time * 0.004;
+            const radius = 180 + Math.sin(time * 0.004 + i) * 120;
+            const wave = Math.sin(time * 0.008 + i * 1.2) * 60;
+            const swirl = Math.sin(time * 0.001) * 50;
+            x = handX + Math.cos(angle) * radius + swirl;
+            y = handY + Math.sin(angle) * radius + wave;
+            rot = Math.atan2(Math.sin(angle), Math.cos(angle) * 1.5) * 180 / Math.PI + Math.sin(time * 0.01 + i) * 40;
+            flap = 1 + Math.abs(Math.sin(time * 0.04 + i)) * 0.2;
+            alpha = 0.9 + Math.sin(time * 0.03 + i) * 0.1;
+          } else return;
+
+          beesCtx.save();
+          beesCtx.globalAlpha = alpha;
+          beesCtx.translate(x, y);
+          beesCtx.rotate(rot * Math.PI / 180);
+          beesCtx.scale(scale * flap, scale);
+          beesCtx.drawImage(beeImg, -60, -60, 120, 120);
+
+          beesCtx.font = 'bold 34px Arial';
+          beesCtx.strokeStyle = '#000';
+          beesCtx.lineWidth = 10;
+          beesCtx.fillStyle = '#FFFF00';
+          beesCtx.textAlign = 'center';
+          beesCtx.textBaseline = 'middle';
+
+          if (name === selectedStudent && (isShowing || inQuizMode)) {
+            const bounce = 1 + Math.sin((Date.now() - selectTime) * 0.02) * 0.1;
+            beesCtx.scale(bounce, bounce);
+            beesCtx.shadowBlur = 40 + Math.sin(time * 0.01) * 20;
+            beesCtx.shadowColor = '#FFFF00';
+          }
+
+          beesCtx.strokeText(name, 0, 80);
+          beesCtx.fillText(name, 0, 80);
+          beesCtx.shadowBlur = 0;
+          beesCtx.restore();
+        });
+      }
 
       requestAnimationFrame(loop);
     }
