@@ -212,7 +212,7 @@
     <source src="assets/sounds/wrong-buzzer.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Nhạc nền mới thêm -->
+  <!-- Nhạc nền -->
   <audio id="background-music" loop preload="auto">
     <source src="assets/sounds/background-forest-treasure.mp3" type="audio/mpeg">
   </audio>
@@ -237,28 +237,38 @@
     const wrongAudio = document.getElementById('wrong-sound');
     const bgMusic = document.getElementById('background-music');
 
-    // Âm lượng hiệu ứng
+    // Âm lượng
     buzzAudio.volume = 0.8;
     selectAudio.volume = 1.0;
     cheerAudio.volume = 1.0;
     correctAudio.volume = 1.0;
     wrongAudio.volume = 0.9;
-    bgMusic.volume = 0.3; // Nhạc nền nhẹ
+    bgMusic.volume = 0.3;
 
     let audioUnlocked = false;
     let musicEnabled = true;
 
     const unlockAudio = () => {
       if (audioUnlocked) return;
+
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       ctx.resume().then(() => {
         audioUnlocked = true;
         document.getElementById('unlock-screen').style.display = 'none';
 
-        // Phát nhạc nền khi unlock
+        // Phát nhạc nền nếu đang bật
         if (musicEnabled) {
           bgMusic.play().catch(() => {});
         }
+
+        // FIX ÂM THANH: Khởi động ngầm tất cả hiệu ứng để browser cho phép phát sau này
+        const soundsToPrime = [buzzAudio, selectAudio, cheerAudio, correctAudio, wrongAudio];
+        soundsToPrime.forEach(sound => {
+          sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+          }).catch(() => {});
+        });
       });
     };
     document.getElementById('unlock-screen').onclick = unlockAudio;
@@ -268,7 +278,7 @@
     toggleMusicBtn.addEventListener('click', () => {
       musicEnabled = !musicEnabled;
       if (musicEnabled) {
-        bgMusic.play().catch(() => {});
+        if (audioUnlocked) bgMusic.play().catch(() => {});
         toggleMusicBtn.textContent = '🎵 Nhạc nền: Bật';
         toggleMusicBtn.style.background = 'rgba(0, 150, 255, 0.9)';
       } else {
@@ -463,10 +473,10 @@
 
         if (isCorrect) {
           btn.classList.add('correct');
-          if (audioUnlocked) correctAudio.play();
+          if (audioUnlocked) correctAudio.play().catch(() => {});
         } else {
           btn.classList.add('wrong');
-          if (audioUnlocked) wrongAudio.play();
+          if (audioUnlocked) wrongAudio.play().catch(() => {});
         }
 
         setTimeout(() => {
@@ -563,7 +573,6 @@
           if (gesture === "Open_Palm" && !rolling && !inQuizMode) {
             rolling = true;
             if (audioUnlocked) {
-              buzzAudio.volume = 0.8;
               buzzAudio.play().catch(() => {});
             }
           }
