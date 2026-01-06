@@ -256,12 +256,11 @@
         audioUnlocked = true;
         document.getElementById('unlock-screen').style.display = 'none';
 
-        // Phát nhạc nền nếu đang bật
         if (musicEnabled) {
           bgMusic.play().catch(() => {});
         }
 
-        // FIX ÂM THANH: Khởi động ngầm tất cả hiệu ứng để browser cho phép phát sau này
+        // Khởi động ngầm tất cả âm thanh để browser cho phép phát sau
         const soundsToPrime = [buzzAudio, selectAudio, cheerAudio, correctAudio, wrongAudio];
         soundsToPrime.forEach(sound => {
           sound.play().then(() => {
@@ -273,7 +272,7 @@
     };
     document.getElementById('unlock-screen').onclick = unlockAudio;
 
-    // Nút bật/tắt nhạc nền
+    // Nút toggle nhạc nền
     const toggleMusicBtn = document.getElementById('toggle-music-btn');
     toggleMusicBtn.addEventListener('click', () => {
       musicEnabled = !musicEnabled;
@@ -358,6 +357,7 @@
       if (e.target === questionModal) questionModal.style.display = 'none';
     });
 
+    // Quản lý câu hỏi và học sinh (giữ nguyên toàn bộ như trước)
     document.getElementById('add-question-btn').addEventListener('click', () => {
       const question = document.getElementById('new-question').value.trim();
       const a = document.getElementById('option-a').value.trim();
@@ -500,6 +500,7 @@
           if (currentQuizIndex >= quizQueue.length) {
             quizQuestion.textContent = "Hoàn thành tất cả câu hỏi! 🎉";
             quizQuestion.classList.add('show');
+            if (audioUnlocked) cheerAudio.play().catch(() => {}); // Phát vỗ tay khi hoàn thành
             setTimeout(() => quizQuestion.classList.remove('show'), 5000);
             quizStarted = false;
             quizQueue = [];
@@ -586,6 +587,11 @@
 
             selectedStudent = students[Math.floor(Math.random() * students.length)];
 
+            // Chỉ phát tiếng chuông khi chọn học sinh
+            if (audioUnlocked) {
+              selectAudio.play().catch(() => {});
+            }
+
             if (questions.length > 0) {
               if (!quizStarted) {
                 quizQueue = [...questions].sort(() => Math.random() - 0.5);
@@ -603,16 +609,6 @@
                 });
 
                 inQuizMode = true;
-
-                if (audioUnlocked) {
-                  selectAudio.play().catch(() => {});
-                  cheerAudio.play().catch(() => {});
-                }
-              }
-            } else {
-              if (audioUnlocked) {
-                selectAudio.play().catch(() => {});
-                cheerAudio.play().catch(() => {});
               }
             }
           }
