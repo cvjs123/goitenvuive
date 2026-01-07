@@ -61,11 +61,12 @@
     .clear-all-btn { background: #cc0000; color: white; margin-top: 20px; width: 100%; padding: 14px; font-size: 18px; }
     .reset-btn { background: #ff8800; color: white; margin-top: 10px; width: 100%; padding: 14px; font-size: 18px; }
     ul { list-style: none; padding: 0; margin: 20px 0; max-height: 300px; overflow-y: auto; }
-    li { padding: 12px; background: #f0fff0; margin: 8px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+    li { padding: 15px; background: #f0fff0; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; font-size: 16px; word-break: break-word; white-space: normal; }
 
+    /* Câu hỏi chính - đẩy lên cao hơn */
     #quiz-question {
       position: fixed;
-      top: 80px;
+      top: 60px;
       left: 50%;
       transform: translateX(-50%);
       font-size: 38px;
@@ -78,17 +79,21 @@
       transition: opacity 0.6s;
       z-index: 30;
       pointer-events: none;
+      word-wrap: break-word;
+      line-height: 1.4;
     }
     #quiz-question.show { opacity: 1; }
 
+    /* Đáp án - đẩy xuống thấp hơn để tránh đè lên câu hỏi */
     #quiz-options {
       position: fixed;
-      top: 160px;
+      top: 220px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 30px;
+      gap: 25px;
       max-width: 95%;
       opacity: 0;
       transition: opacity 0.6s;
@@ -98,9 +103,10 @@
     #quiz-options.show { opacity: 1; pointer-events: all; }
 
     .quiz-option {
-      flex: 0 1 22%;
-      min-width: 220px;
-      padding: 25px 20px;
+      flex: 1 1 40%;
+      min-width: 280px;
+      max-width: 45%;
+      padding: 30px 20px;
       font-size: 28px;
       background: rgba(255,255,255,0.15);
       backdrop-filter: blur(8px);
@@ -111,9 +117,9 @@
       text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
       border: 2px solid rgba(255,255,255,0.2);
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-wrap: break-word;
+      line-height: 1.5;
     }
     .quiz-option:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
     .quiz-option.correct { background: #00cc00; border-color: #00ff00; }
@@ -126,14 +132,31 @@
       flex-direction: column; cursor: pointer;
     }
 
-    /* Đáp án đúng tô màu đỏ */
+    /* Cải thiện danh sách câu hỏi trong modal */
+    .question-item {
+      flex: 1;
+      line-height: 1.6;
+    }
+    .question-item strong {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 17px;
+    }
+    .question-item .options {
+      display: block;
+      margin: 12px 0;
+    }
+    .question-item .options span {
+      display: block;
+      margin: 8px 0;
+      padding-left: 5px;
+    }
     .correct-answer {
       color: #d00;
       font-weight: bold;
     }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-  <!-- Thư viện đọc file Word .docx -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 </head>
 <body>
@@ -335,9 +358,16 @@
       questions.forEach((q, i) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <div><strong>${q.question}</strong><br>
-          A: ${q.a} | B: ${q.b} | C: ${q.c} | D: ${q.d}<br>
-          <small>Đáp án đúng: <span class="correct-answer">${q.correct}</span></small></div>
+          <div class="question-item">
+            <strong>${q.question}</strong>
+            <div class="options">
+              <span><strong>A:</strong> ${q.a}</span>
+              <span><strong>B:</strong> ${q.b}</span>
+              <span><strong>C:</strong> ${q.c}</span>
+              <span><strong>D:</strong> ${q.d}</span>
+            </div>
+            <small>Đáp án đúng: <span class="correct-answer">${q.correct}</span></small>
+          </div>
           <button class="del-btn" data-index="${i}">🗑️ Xóa</button>`;
         list.appendChild(li);
       });
@@ -492,7 +522,6 @@
           } catch (err) {
             return alert('Lỗi đọc file JSON: ' + err.message);
           }
-
         } else if (file.name.endsWith('.txt')) {
           const content = e.target.result;
           const blocks = content.split(/\n\s*\n/).filter(b => b.trim());
@@ -511,7 +540,6 @@
               newQuestions.push(q);
             }
           }
-
         } else if (file.name.endsWith('.docx')) {
           mammoth.convertToHtml({arrayBuffer: e.target.result})
             .then(result => {
