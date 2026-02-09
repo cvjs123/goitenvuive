@@ -40,6 +40,16 @@
     }
     #manage-btn:hover, #question-btn:hover { background: #00ff00; }
     #toggle-music-btn:hover { background: rgba(0, 180, 255, 1); }
+    #toggle-wheel-btn {
+      position: fixed;
+      right: 20px;
+      top: 130px;
+      padding: 10px 18px; font-size: 16px;
+      background: rgba(255, 165, 0, 0.95);
+      color: white;
+      border: none; border-radius: 15px; cursor: pointer; z-index: 1200;
+    }
+    #toggle-wheel-btn:hover { background: rgba(255, 180, 0, 1); }
 
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -481,6 +491,7 @@
   <button id="manage-btn">📝 Danh Sách</button>
   <button id="question-btn">❓ Câu Hỏi</button>
   <button id="toggle-music-btn">🎵 Bật</button>
+  <button id="toggle-wheel-btn">🎡 Vòng quay: Bật</button>
 
   <div id="unlock-screen">
     <div>
@@ -743,6 +754,26 @@
       toggleMusicBtn.style.background = 'rgba(150, 150, 150, 0.8)';
       musicModal.classList.remove('show');
     });
+
+    // Vòng quay may mắn: trạng thái bật/tắt
+    const toggleWheelBtn = document.getElementById('toggle-wheel-btn');
+    let wheelEnabled = localStorage.getItem('wheelEnabled') !== 'false';
+
+    function updateWheelBtn() {
+      if (!toggleWheelBtn) return;
+      toggleWheelBtn.textContent = wheelEnabled ? '🎡 Vòng quay: Bật' : '🎡 Vòng quay: Tắt';
+      toggleWheelBtn.style.background = wheelEnabled ? 'rgba(255, 165, 0, 0.95)' : 'rgba(150, 150, 150, 0.8)';
+    }
+
+    updateWheelBtn();
+
+    if (toggleWheelBtn) {
+      toggleWheelBtn.addEventListener('click', () => {
+        wheelEnabled = !wheelEnabled;
+        localStorage.setItem('wheelEnabled', wheelEnabled);
+        updateWheelBtn();
+      });
+    }
 
     const defaultStudents = [
       "Nguyễn Văn An", "Trần Thị Bình", "Lê Văn Cường", "Phạm Thị Dung", "Hoàng Văn Em",
@@ -1067,23 +1098,27 @@
             });
             
             // Chờ thêm 2 giây rồi hiển thị vòng quay
-            const showWheelTimer = setTimeout(() => {
+                const showWheelTimer = setTimeout(() => {
               const luckWheel = document.getElementById('luck-wheel');
               const wheelResult = document.getElementById('wheel-result');
               const wheelSpinner = document.getElementById('wheel-spinner');
-              
-              luckWheel.classList.add('show');
-              wheelResult.style.display = 'none';
-              wheelResult.classList.remove('show-overlay');
-              wheelResult.textContent = 'Click vào vòng quay để quay!';
-              
-              // Reset vòng quay
-              wheelSpinner.style.animation = 'none';
-              wheelSpinner.style.transform = 'rotate(0deg)';
-              wheelSpinner.isSpinning = false;
-              
-              // Cho phép click để quay
-              wheelSpinner.onclick = spinWheel;
+
+              if (wheelEnabled) {
+                luckWheel.classList.add('show');
+                wheelResult.style.display = 'none';
+                wheelResult.classList.remove('show-overlay');
+                wheelResult.textContent = 'Click vào vòng quay để quay!';
+
+                // Reset vòng quay
+                wheelSpinner.style.animation = 'none';
+                wheelSpinner.style.transform = 'rotate(0deg)';
+                wheelSpinner.isSpinning = false;
+
+                // Cho phép click để quay
+                wheelSpinner.onclick = spinWheel;
+              } else {
+                // vòng quay tắt: không làm gì (im lặng)
+              }
             }, 2000); // Chờ 2 giây
           }, 2000); // Giữ đáp án 2 giây
 
@@ -1460,6 +1495,8 @@
       const wheelSpinner = document.getElementById('wheel-spinner');
       const wheelResult = document.getElementById('wheel-result');
       
+      if (!wheelEnabled) return;
+
       if (wheelSpinner.isSpinning) return;
       wheelSpinner.isSpinning = true;
       wheelSpinner.onclick = null;
@@ -1506,12 +1543,12 @@
         } catch(e){}
 
         // Xử lý kết quả dựa trên loại phần thưởng
-        if (result.value === 'bonus') {
+          if (result.value === 'bonus') {
           wheelSpinCount += 2; // Thêm 2 lượt quay
           
           // Cho phép quay lại sau khi thông báo ẩn (3 giây)
           wheelCloseTimer = setTimeout(() => {
-            wheelSpinner.onclick = spinWheel;
+            if (wheelEnabled) wheelSpinner.onclick = spinWheel;
             wheelSpinner.isSpinning = false;
           }, 3000);
         } else if (result.value === 'retry') {
@@ -1519,7 +1556,7 @@
           
           // Chơi lại - giống như bonus, để bánh quay mở để quay tiếp
           wheelCloseTimer = setTimeout(() => {
-            wheelSpinner.onclick = spinWheel;
+            if (wheelEnabled) wheelSpinner.onclick = spinWheel;
             wheelSpinner.isSpinning = false;
           }, 3000);
         } else if (result.value === 'lose') {
@@ -1527,7 +1564,7 @@
           wheelCloseTimer = setTimeout(() => {
             document.getElementById('luck-wheel').classList.remove('show');
             const spinner = document.getElementById('wheel-spinner');
-            spinner.onclick = spinWheel;
+            if (wheelEnabled) spinner.onclick = spinWheel;
             wheelCloseTimer = null;
           }, 3000);
         } else {
@@ -1535,7 +1572,7 @@
           wheelCloseTimer = setTimeout(() => {
             document.getElementById('luck-wheel').classList.remove('show');
             const spinner = document.getElementById('wheel-spinner');
-            spinner.onclick = spinWheel;
+            if (wheelEnabled) spinner.onclick = spinWheel;
             wheelCloseTimer = null;
           }, 3000);
         }
