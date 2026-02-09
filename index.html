@@ -9,7 +9,7 @@
     #bg { position: fixed; inset: 0;
       background: url('https://static.vecteezy.com/system/resources/thumbnails/040/806/603/small_2x/ai-generated-a-beautiful-garden-scene-with-butterflies-and-beautiful-flowers-free-video.jpg') center/cover no-repeat;
     }
-    #video { position: fixed; top: -9999px; visibility: hidden; }
+    #video { position: fixed; top: -9999px; visibility: hidden; display: none; }
     #preview {
       position: fixed; bottom: 20px; right: 20px;
       width: 240px; height: 180px;
@@ -33,7 +33,8 @@
     #manage-btn { left: 20px; }
     #question-btn { right: 20px; }
     #toggle-music-btn { 
-      left: 50%; transform: translateX(-50%); 
+      right: 20px;
+      top: 75px;
       padding: 10px 18px; font-size: 16px; 
       background: rgba(0, 150, 255, 0.9);
     }
@@ -66,15 +67,14 @@
     /* Câu hỏi chính - đẩy lên cao hơn */
     #quiz-question {
       position: fixed;
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 38px;
+      top: 80px;
+      left: 150px;
+      right: 150px;
+      font-size: 54px;
       font-weight: 700;
-      color: #000; /* chữ màu đen */
+      color: #d40a0a; /* chữ màu đen */
       text-shadow: none;
       text-align: center;
-      max-width: 90%;
       opacity: 0;
       transition: opacity 0.6s;
       z-index: 30;
@@ -87,14 +87,13 @@
     /* Đáp án - đẩy xuống thấp hơn để tránh đè lên câu hỏi */
     #quiz-options {
       position: fixed;
-      top: 220px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 340px;
+      left: 150px;
+      right: 150px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 25px;
-      max-width: 95%;
       opacity: 0;
       transition: opacity 0.6s;
       z-index: 30;
@@ -107,8 +106,9 @@
       min-width: 280px;
       max-width: 45%;
       padding: 30px 20px;
-      font-size: 28px;
+      font-size: 40px;
       background: rgba(255,255,255,0.15);
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       border-radius: 20px;
       cursor: pointer;
@@ -156,19 +156,22 @@
       color: #d00;
       font-weight: bold;
     }
+    .modal-divider {
+      margin: 25px 0;
+    }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 </head>
 <body>
   <div id="bg"></div>
-  <video id="video" autoplay playsinline muted></video>
+  <video id="video" autoplay muted width="1280" height="720"></video>
   <canvas id="bees-canvas"></canvas>
   <div id="preview"><canvas id="hand-canvas"></canvas></div>
 
-  <button id="manage-btn">📝 Quản Lý Danh Sách</button>
+  <button id="manage-btn">📝 Danh Sách</button>
   <button id="question-btn">❓ Câu Hỏi</button>
-  <button id="toggle-music-btn">🎵 Nhạc nền: Bật</button>
+  <button id="toggle-music-btn">🎵 Bật</button>
 
   <div id="unlock-screen">
     <div>
@@ -192,7 +195,7 @@
       <input type="text" id="new-name" placeholder="Nhập tên học sinh mới">
       <button class="add-btn" id="add-btn">➕ Thêm Học Sinh</button>
       
-      <hr style="margin: 25px 0;">
+      <hr class="modal-divider">
       <label><strong>📂 Nhập từ Excel (.xlsx hoặc .xls)</strong></label>
       <input type="file" id="excel-file" accept=".xlsx,.xls">
       <button class="import-btn" id="import-btn">⬆️ Nhập Từ Excel</button>
@@ -222,7 +225,7 @@
       </select>
       <button class="add-btn" id="add-question-btn">➕ Thêm Câu Hỏi</button>
       
-      <hr style="margin: 25px 0;">
+      <hr class="modal-divider">
       <label><strong>📂 Nhập từ file JSON, TXT hoặc Word (.docx)</strong></label>
       <input type="file" id="questions-file" accept=".json,.txt,.docx">
       <button class="import-btn" id="import-questions-btn">⬆️ Nhập Từ File</button>
@@ -313,11 +316,11 @@
       musicEnabled = !musicEnabled;
       if (musicEnabled) {
         if (audioUnlocked) bgMusic.play().catch(() => {});
-        toggleMusicBtn.textContent = '🎵 Nhạc nền: Bật';
+        toggleMusicBtn.textContent = '🎵 Bật';
         toggleMusicBtn.style.background = 'rgba(0, 150, 255, 0.9)';
       } else {
         bgMusic.pause();
-        toggleMusicBtn.textContent = '🎵 Nhạc nền: Tắt';
+        toggleMusicBtn.textContent = '🎵 Tắt';
         toggleMusicBtn.style.background = 'rgba(150, 150, 150, 0.8)';
       }
     });
@@ -672,6 +675,8 @@
     let rolling = false, lastRoll = 0;
     let handX = innerWidth/2, handY = innerHeight/2, targetHandX = handX, targetHandY = handY;
     let recognizer = null;
+    let availableCameras = [];
+    let selectedCameraId = null;
 
     const resize = () => {
       beesCanvas.width = innerWidth;
@@ -681,11 +686,73 @@
     };
     window.onresize = resize;
 
+    async function getAvailableCameras() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        availableCameras = devices.filter(device => device.kind === 'videoinput');
+        
+        // Ưu tiên camera USB nếu có
+        let selectedCamera = availableCameras.find(cam => 
+          cam.label.toLowerCase().includes('usb') || cam.label.toLowerCase().includes('external')
+        );
+        
+        // Nếu không có camera USB riêng, lấy camera đầu tiên khác
+        if (!selectedCamera && availableCameras.length > 0) {
+          selectedCamera = availableCameras[0];
+        }
+        
+        if (selectedCamera) {
+          selectedCameraId = selectedCamera.deviceId;
+          console.log("Đã chọn camera:", selectedCamera.label);
+        }
+        
+        return availableCameras;
+      } catch (err) {
+        console.error("Lỗi liệt kê camera:", err);
+        return [];
+      }
+    }
+
     async function init() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        // Liệt kê các camera có sẵn
+        await getAvailableCameras();
+        
+        // Tạo constraints cho getUserMedia
+        let constraints = { 
+          video: { 
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user" 
+          } 
+        };
+        if (selectedCameraId) {
+          constraints = { 
+            video: { 
+              deviceId: { exact: selectedCameraId },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            } 
+          };
+        }
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
-        await video.play();
+        
+        // Chờ video có sẵn metadata trước khi play
+        video.onloadedmetadata = () => {
+          video.play().catch(err => {
+            console.error("Lỗi play video:", err);
+          });
+        };
+        
+        // Nếu metadata đã load sẵn
+        if (video.readyState >= 1) {
+          video.play().catch(err => {
+            console.error("Lỗi play video:", err);
+          });
+        }
+        
         resize();
 
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
@@ -702,21 +769,61 @@
 
         requestAnimationFrame(loop);
       } catch (err) {
-        alert("Lỗi khởi động camera: " + err.message + "\nỨng dụng vẫn chạy nhưng không nhận diện tay.");
+        let errorMsg = "Lỗi khởi động camera: " + err.message;
+        
+        if (err.name === 'NotFoundError' || err.name === 'NotAllowedError') {
+          errorMsg = "Camera không được tìm thấy hoặc bạn chưa cấp phép.\n\n" +
+            "Kiểm tra:\n" +
+            "1. Cắm USB camera vào máy\n" +
+            "2. Kiểm tra thiết bị trong Quản lý thiết bị (Device Manager)\n" +
+            "3. Cho phép truy cập camera khi trình duyệt yêu cầu\n" +
+            "4. Tải lại trang web (F5)\n\n" +
+            "Ứng dụng vẫn chạy nhưng không nhận diện tay.";
+        } else if (err.name === 'NotAllowedError') {
+          errorMsg = "Bạn chưa cấp quyền truy cập camera cho trình duyệt.\n\n" +
+            "Vui lòng:\n" +
+            "1. Kiểm tra thanh địa chỉ trình duyệt (ngoài cùng bên trái)\n" +
+            "2. Nhấp vào biểu tượng camera và cho phép truy cập\n" +
+            "3. Tải lại trang web (F5)";
+        }
+        
+        console.error("Chi tiết lỗi:", err);
+        alert(errorMsg);
         requestAnimationFrame(loop);
       }
     }
 
     function loop(time) {
+      let results;
+      
       if (!recognizer) {
         requestAnimationFrame(loop);
         return;
       }
 
-      const results = recognizer.recognizeForVideo(video, time);
+      // Chỉ vẽ khi video sẵn sàng
+      if (video.readyState >= 2) {
+        results = recognizer.recognizeForVideo(video, time);
 
-      handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
-      handCtx.drawImage(video, 0, 0, handCanvas.width, handCanvas.height);
+        // Đảm bảo canvas có kích thước chính xác
+        if (handCanvas.width !== handCanvas.offsetWidth || handCanvas.height !== handCanvas.offsetHeight) {
+          handCanvas.width = handCanvas.offsetWidth;
+          handCanvas.height = handCanvas.offsetHeight;
+        }
+
+        handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+        
+        try {
+          handCtx.drawImage(video, 0, 0, handCanvas.width, handCanvas.height);
+        } catch (e) {
+          console.warn("Video không sẵn sàng để vẽ:", e);
+        }
+      } else {
+        requestAnimationFrame(loop);
+        return;
+      }
+
+      if (!results) results = { landmarks: [], gestures: [] };
 
       if (results.landmarks.length > 0) {
         unlockAudio();
