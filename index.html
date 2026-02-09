@@ -159,6 +159,315 @@
     .modal-divider {
       margin: 25px 0;
     }
+    .music-option-btn {
+      background: #ff9900;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+    }
+    #music-off-btn {
+      background: #cc0000;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+    }
+
+    #music-modal {
+      display: none !important;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    #music-modal.show {
+      display: flex !important;
+    }
+
+    #music-modal .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    #music-modal .close {
+      display: block;
+    }
+
+    #music-modal h2 {
+      display: block;
+      text-align: center;
+      color: #00aa00;
+      margin: 0 0 20px 0;
+    }
+
+    #music-modal #music-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #music-modal .music-option-btn {
+      background: #ff9900;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      width: 100%;
+    }
+
+    #music-modal .music-option-btn:hover {
+      background: #ffaa00;
+    }
+
+    #music-modal #music-off-btn {
+      background: #cc0000;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      width: 100%;
+    }
+
+    #music-modal #music-off-btn:hover {
+      background: #dd0000;
+    }
+
+    /* Vòng quay may mắn */
+    #luck-wheel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 750px;
+      height: 750px;
+      z-index: 250;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #luck-wheel.show {
+      display: flex;
+      opacity: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .wheel {
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      position: relative;
+      border: 12px solid #FFD700;
+      background: conic-gradient(
+        from 0deg,
+        #FF6B6B 0deg 45deg,   /* Đỏ */
+        #4ECDC4 45deg 90deg,  /* Xanh */
+        #FFE66D 90deg 135deg, /* Vàng */
+        #95E1D3 135deg 180deg,/* Lục */
+        #FF85C0 180deg 225deg,/* Hồng */
+        #A29BFE 225deg 270deg,/* Tím */
+        #FFA502 270deg 315deg,/* Cam */
+        #0984E3 315deg 360deg /* Xanh TN */
+      );
+      cursor: pointer;
+    }
+
+    .wheel:hover {
+      opacity: 0.95;
+    }
+
+    .wheel:active {
+      opacity: 0.9;
+    }
+
+    .wheel::before {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 6px solid #FFD700;
+      z-index: 2;
+    }
+
+    .wheel::after {
+      content: '🎲';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      z-index: 3;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-top: 40px solid #FFD700;
+      z-index: 3;
+    }
+
+    .wheel-segment {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .wheel-text {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    #wheel-result {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 240px;
+      max-width: 70%;
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
+      color: #d40a0a;
+      text-align: center;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, #00cc44, #00aa33);
+      border-radius: 18px;
+      border: 4px solid #ffd700;
+      box-shadow: 0 15px 40px rgba(0, 204, 68, 0.4), 0 0 30px rgba(255, 215, 0, 0.3);
+      z-index: 3001;
+      line-height: 1.3;
+      white-space: normal;
+    }
+      /* Fancy variants */
+      #wheel-result.type-bonus {
+        background: linear-gradient(135deg, #00cc44, #00aa33);
+        border-color: #ffd700;
+        box-shadow: 0 15px 40px rgba(0, 204, 68, 0.4), 0 0 25px rgba(255, 215, 0, 0.3);
+        color: #d40a0a;
+      }
+      #wheel-result.type-retry {
+        background: linear-gradient(135deg, #00cc44, #00aa33);
+        border-color: #ffd700;
+        box-shadow: 0 15px 40px rgba(0, 204, 68, 0.4), 0 0 25px rgba(255, 215, 0, 0.3);
+        color: #d40a0a;
+      }
+      #wheel-result .prize-icon { display:none; font-size:40px; margin-bottom:4px; }
+      #wheel-result .prize-title { font-size:20px; font-weight:900; margin-bottom:0; }
+      #wheel-result .prize-sub { display:none; }
+      @keyframes prize-pulse { 0%{transform:scale(0.98)}50%{transform:scale(1.04)}100%{transform:scale(0.98)} }
+      #wheel-result.type-bonus .prize-icon, #wheel-result.type-retry .prize-icon { animation: prize-pulse 1.2s infinite; }
+
+    /* Dim overlay behind popup */
+    #wheel-result.show-overlay::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 3000; /* behind popup but above page */
+      border-radius: 0;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(3600deg);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .wheel-segment-text {
+      position: absolute;
+      width: 140px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      top: 50%;
+      left: 50%;
+      transform-origin: 50% 50%;
+      white-space: nowrap;
+    }
+
+    #wheel-spinner .wheel-segment-text:nth-child(1) {
+      transform: translate(-50%, -50%) rotate(22.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(2) {
+      transform: translate(-50%, -50%) rotate(67.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(3) {
+      transform: translate(-50%, -50%) rotate(112.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(4) {
+      transform: translate(-50%, -50%) rotate(157.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(5) {
+      transform: translate(-50%, -50%) rotate(202.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(6) {
+      transform: translate(-50%, -50%) rotate(247.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(7) {
+      transform: translate(-50%, -50%) rotate(292.5deg) translateY(-250px);
+    }
+    #wheel-spinner .wheel-segment-text:nth-child(8) {
+      transform: translate(-50%, -50%) rotate(337.5deg) translateY(-250px);
+    }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
@@ -186,6 +495,21 @@
     <div class="quiz-option" data-choice="B">B. Đáp án B</div>
     <div class="quiz-option" data-choice="C">C. Đáp án C</div>
     <div class="quiz-option" data-choice="D">D. Đáp án D</div>
+  </div>
+
+  <div id="luck-wheel">
+    <div class="wheel-pointer"></div>
+    <div class="wheel" id="wheel-spinner">
+      <div class="wheel-segment-text">🎁 7</div>
+      <div class="wheel-segment-text">🎁 8</div>
+      <div class="wheel-segment-text">🎁 9</div>
+      <div class="wheel-segment-text">🎁 10</div>
+      <div class="wheel-segment-text">🍀 May mắn</div>
+      <div class="wheel-segment-text">⚡ Mất lượt</div>
+      <div class="wheel-segment-text">⭐ Thêm lượt</div>
+      <div class="wheel-segment-text">🎯 Chơi Lại</div>
+    </div>
+  </div>
   </div>
 
   <div id="modal" class="modal">
@@ -236,6 +560,30 @@
     </div>
   </div>
 
+  <div id="music-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>🎵 Chọn Nhạc Nền</h2>
+      <div id="music-options">
+        <button class="music-option-btn" data-music="0">
+          🎵 Forest Treasure
+        </button>
+        <button class="music-option-btn" data-music="1">
+          🎵 Garden Calm
+        </button>
+        <button class="music-option-btn" data-music="2">
+          🎵 Sunny Day
+        </button>
+        <button class="music-option-btn" data-music="3">
+          🎵 Adventure Time
+        </button>
+        <button id="music-off-btn">
+          🔇 Tắt Nhạc
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Âm thanh hiệu ứng -->
   <audio id="buzz-sound" loop preload="auto">
     <source src="assets/sounds/bee-buzz.mp3" type="audio/mpeg">
@@ -252,10 +600,25 @@
   <audio id="wrong-sound" preload="auto">
     <source src="assets/sounds/wrong-buzzer.mp3" type="audio/mpeg">
   </audio>
+  <audio id="spin-sound" loop preload="auto">
+    <source src="assets/sounds/wheel-spin-loop.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="win-sound" preload="auto">
+    <source src="assets/sounds/win-jingle.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- Nhạc nền -->
-  <audio id="background-music" loop preload="auto">
+  <audio id="bg-music-1" loop preload="auto">
     <source src="assets/sounds/background-forest-treasure.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bg-music-2" loop preload="auto">
+    <source src="assets/sounds/background-garden-calm.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bg-music-3" loop preload="auto">
+    <source src="assets/sounds/background-sunny-day.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bg-music-4" loop preload="auto">
+    <source src="assets/sounds/background-adventure-time.mp3" type="audio/mpeg">
   </audio>
 
   <script type="module">
@@ -276,14 +639,24 @@
     const cheerAudio = document.getElementById('cheer-sound');
     const correctAudio = document.getElementById('correct-sound');
     const wrongAudio = document.getElementById('wrong-sound');
-    const bgMusic = document.getElementById('background-music');
+    const spinAudio = document.getElementById('spin-sound');
+    const winAudio = document.getElementById('win-sound');
+    const bgMusicTracks = [
+      document.getElementById('bg-music-1'),
+      document.getElementById('bg-music-2'),
+      document.getElementById('bg-music-3'),
+      document.getElementById('bg-music-4')
+    ];
+    let currentMusicIndex = 0;
 
     buzzAudio.volume = 0.8;
     selectAudio.volume = 1.0;
     cheerAudio.volume = 1.0;
     correctAudio.volume = 1.0;
     wrongAudio.volume = 0.9;
-    bgMusic.volume = 0.3;
+    spinAudio.volume = 0.9;
+    winAudio.volume = 1.0;
+    bgMusicTracks.forEach(track => { track.volume = 0.3; });
 
     let audioUnlocked = false;
     let musicEnabled = true;
@@ -296,8 +669,8 @@
         audioUnlocked = true;
         document.getElementById('unlock-screen').style.display = 'none';
 
-        if (musicEnabled) {
-          bgMusic.play().catch(() => {});
+        if (musicEnabled && currentMusicIndex > 0) {
+          bgMusicTracks[currentMusicIndex].play().catch(() => {});
         }
 
         const soundsToPrime = [buzzAudio, selectAudio, cheerAudio, correctAudio, wrongAudio];
@@ -312,17 +685,63 @@
     document.getElementById('unlock-screen').onclick = unlockAudio;
 
     const toggleMusicBtn = document.getElementById('toggle-music-btn');
+    const musicModal = document.getElementById('music-modal');
+    const musicOptionBtns = document.querySelectorAll('.music-option-btn');
+    const musicOffBtn = document.getElementById('music-off-btn');
+
     toggleMusicBtn.addEventListener('click', () => {
-      musicEnabled = !musicEnabled;
-      if (musicEnabled) {
-        if (audioUnlocked) bgMusic.play().catch(() => {});
+      musicModal.classList.toggle('show');
+    });
+
+    document.querySelector('#music-modal .close').addEventListener('click', () => {
+      musicModal.classList.remove('show');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target !== toggleMusicBtn && !musicModal.contains(e.target)) {
+        musicModal.classList.remove('show');
+      }
+    });
+
+    musicOptionBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Dừng tất cả nhạc
+        bgMusicTracks.forEach(track => track.pause());
+        
+        // Phát bài nhạc được chọn
+        currentMusicIndex = parseInt(btn.dataset.music);
+        bgMusicTracks[currentMusicIndex].currentTime = 0;
+        if (audioUnlocked) {
+          bgMusicTracks[currentMusicIndex].play().catch(() => {});
+        }
+        musicEnabled = true;
         toggleMusicBtn.textContent = '🎵 Bật';
         toggleMusicBtn.style.background = 'rgba(0, 150, 255, 0.9)';
-      } else {
-        bgMusic.pause();
-        toggleMusicBtn.textContent = '🎵 Tắt';
-        toggleMusicBtn.style.background = 'rgba(150, 150, 150, 0.8)';
-      }
+        
+        // Đóng modal
+        musicModal.classList.remove('show');
+      });
+      
+      // Hover để preview
+      btn.addEventListener('mouseenter', () => {
+        const musicIndex = parseInt(btn.dataset.music);
+        bgMusicTracks.forEach((track, i) => {
+          if (i !== musicIndex) track.pause();
+        });
+        bgMusicTracks[musicIndex].currentTime = 0;
+        if (audioUnlocked) {
+          bgMusicTracks[musicIndex].play().catch(() => {});
+        }
+      });
+    });
+
+    musicOffBtn.addEventListener('click', () => {
+      bgMusicTracks.forEach(track => track.pause());
+      musicEnabled = false;
+      currentMusicIndex = 0;
+      toggleMusicBtn.textContent = '🎵 Tắt';
+      toggleMusicBtn.style.background = 'rgba(150, 150, 150, 0.8)';
+      musicModal.classList.remove('show');
     });
 
     const defaultStudents = [
@@ -636,39 +1055,78 @@
         if (isCorrect) {
           btn.classList.add('correct');
           if (audioUnlocked) correctAudio.play().catch(() => {});
+          
+          // Giữ đáp án đúng 2 giây (không ẩn)
+          const hideAnswerTimer = setTimeout(() => {
+            // Ẩn câu hỏi và đáp án
+            quizQuestion.classList.remove('show');
+            quizOptions.classList.remove('show');
+            optionButtons.forEach(b => {
+              b.classList.remove('correct', 'wrong');
+              b.textContent = '';
+            });
+            
+            // Chờ thêm 2 giây rồi hiển thị vòng quay
+            const showWheelTimer = setTimeout(() => {
+              const luckWheel = document.getElementById('luck-wheel');
+              const wheelResult = document.getElementById('wheel-result');
+              const wheelSpinner = document.getElementById('wheel-spinner');
+              
+              luckWheel.classList.add('show');
+              wheelResult.style.display = 'none';
+              wheelResult.classList.remove('show-overlay');
+              wheelResult.textContent = 'Click vào vòng quay để quay!';
+              
+              // Reset vòng quay
+              wheelSpinner.style.animation = 'none';
+              wheelSpinner.style.transform = 'rotate(0deg)';
+              wheelSpinner.isSpinning = false;
+              
+              // Cho phép click để quay
+              wheelSpinner.onclick = spinWheel;
+            }, 2000); // Chờ 2 giây
+          }, 2000); // Giữ đáp án 2 giây
+
+          // Tiếp tục logic quản lý câu hỏi
+          const updateQuizTimer = setTimeout(() => {
+            if (isCorrect) {
+              currentQuizIndex++;
+            }
+
+            inQuizMode = false;
+            questionShown = false;
+            selectedStudent = null;
+            selectTime = 0;
+
+            if (currentQuizIndex >= quizQueue.length) {
+              quizQuestion.textContent = "Hoàn thành tất cả câu hỏi! 🎉";
+              quizQuestion.classList.add('show');
+              if (audioUnlocked) cheerAudio.play().catch(() => {});
+              setTimeout(() => quizQuestion.classList.remove('show'), 5000);
+              quizStarted = false;
+              quizQueue = [];
+              currentQuizIndex = 0;
+            }
+          }, 4000); // Sau 2s giữ + 2s chờ = 4s
         } else {
           btn.classList.add('wrong');
           if (audioUnlocked) wrongAudio.play().catch(() => {});
+
+          setTimeout(() => {
+            optionButtons.forEach(b => {
+              b.classList.remove('correct', 'wrong');
+              b.textContent = '';
+              b.style.pointerEvents = 'none';
+            });
+            quizQuestion.classList.remove('show');
+            quizOptions.classList.remove('show');
+
+            inQuizMode = false;
+            questionShown = false;
+            selectedStudent = null;
+            selectTime = 0;
+          }, 3000);
         }
-
-        setTimeout(() => {
-          optionButtons.forEach(b => {
-            b.classList.remove('correct', 'wrong');
-            b.textContent = '';
-            b.style.pointerEvents = 'none';
-          });
-          quizQuestion.classList.remove('show');
-          quizOptions.classList.remove('show');
-
-          if (isCorrect) {
-            currentQuizIndex++;
-          }
-
-          inQuizMode = false;
-          questionShown = false;
-          selectedStudent = null;
-          selectTime = 0;
-
-          if (currentQuizIndex >= quizQueue.length) {
-            quizQuestion.textContent = "Hoàn thành tất cả câu hỏi! 🎉";
-            quizQuestion.classList.add('show');
-            if (audioUnlocked) cheerAudio.play().catch(() => {});
-            setTimeout(() => quizQuestion.classList.remove('show'), 5000);
-            quizStarted = false;
-            quizQueue = [];
-            currentQuizIndex = 0;
-          }
-        }, 3000);
       });
     });
 
@@ -677,6 +1135,7 @@
     let recognizer = null;
     let availableCameras = [];
     let selectedCameraId = null;
+    let wheelSpinCount = 0; // Thêm biến đếm lượt quay
 
     const resize = () => {
       beesCanvas.width = innerWidth;
@@ -890,6 +1349,11 @@
         optionButtons[3].textContent = `D. ${currentQuiz.d}`;
         optionButtons.forEach(b => b.style.pointerEvents = 'all');
         quizOptions.classList.add('show');
+        
+        // Ẩn vòng quay khi tiếp tục câu hỏi tiếp theo
+        const luckWheel = document.getElementById('luck-wheel');
+        luckWheel.classList.remove('show');
+        
         questionShown = true;
       }
 
@@ -956,7 +1420,132 @@
       requestAnimationFrame(loop);
     }
 
+    // Vòng quay may mắn - Mỗi màu tương ứng 1 phần thưởng
+    let wheelCloseTimer = null;
+    let wheelResultTimer = null;
+    const wheelSegments = [
+      { text: '🎁 7 Điểm', value: 7, color: '#FF6B6B' },
+      { text: '🎁 8 Điểm', value: 8, color: '#4ECDC4' },
+      { text: '🎁 9 Điểm', value: 9, color: '#FFE66D' },
+      { text: '🎁 10 Điểm', value: 10, color: '#95E1D3' },
+      { text: '🍀 May Mắn Lần Sau!', value: 'luck', color: '#FF85C0' },
+      { text: '⚡ Mất Lượt', value: 'lose', color: '#A29BFE' },
+      { text: '⭐ Bonus +2', value: 'bonus', color: '#FFA502' },
+      { text: '🎯 Chơi Lại', color: '#0984E3' }
+    ];
+
+    // Hiển thị popup kết quả (chuẩn hóa hiển thị + overlay + timer)
+    function showPopup(htmlContent, bgColor, type) {
+      const wheelResult = document.getElementById('wheel-result');
+      if (!wheelResult) return;
+      if (wheelResult._hideTimer) { clearTimeout(wheelResult._hideTimer); wheelResult._hideTimer = null; }
+
+      // Build structured content
+      const icon = type === 'bonus' ? '⭐' : (type === 'retry' ? '🔁' : '🎉');
+      wheelResult.innerHTML = `<div class="prize-icon">${icon}</div><div class="prize-title">${htmlContent}</div>`;
+      wheelResult.className = ''; // reset classes
+      wheelResult.classList.add(type ? ('type-' + type) : 'type-default');
+      wheelResult.style.display = 'block';
+      wheelResult.classList.add('show-overlay');
+
+      // auto-hide after 3s
+      wheelResult._hideTimer = setTimeout(() => {
+        wheelResult.style.display = 'none';
+        wheelResult.classList.remove('show-overlay');
+        wheelResult._hideTimer = null;
+      }, 3000);
+    }
+
+    function spinWheel() {
+      const wheelSpinner = document.getElementById('wheel-spinner');
+      const wheelResult = document.getElementById('wheel-result');
+      
+      if (wheelSpinner.isSpinning) return;
+      wheelSpinner.isSpinning = true;
+      wheelSpinner.onclick = null;
+      wheelResult.style.display = 'none';
+      wheelResult.classList.remove('show-overlay');
+
+      // Quay ngẫu nhiên từ 0 đến 359 độ
+      const randomDegree = Math.floor(Math.random() * 360);
+      const totalRotation = 3600 + randomDegree; // 10 vòng + ngẫu nhiên
+
+      // Phát âm thanh quay (loop) khi bắt đầu
+      try { spinAudio.currentTime = 0; spinAudio.loop = true; spinAudio.play().catch(()=>{}); } catch(e){}
+
+      const spinDuration = 10; // Thời gian quay
+      // Sử dụng easing: nhanh lúc đầu, chậm dần về cuối
+      wheelSpinner.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+      wheelSpinner.style.transform = `rotate(${totalRotation}deg)`;
+
+      setTimeout(() => {
+        // Tính toán kết quả dựa trên góc cuối cùng
+        const finalDegree = randomDegree % 360;
+        const pointerAngle = (360 - finalDegree + 360) % 360;
+        const segmentIndex = Math.floor(pointerAngle / 45) % wheelSegments.length;
+        const result = wheelSegments[segmentIndex];
+
+        // Xóa các timeout cũ nếu có để tránh hiển thị trùng
+        if (wheelResultTimer) { clearTimeout(wheelResultTimer); wheelResultTimer = null; }
+        if (wheelCloseTimer) { clearTimeout(wheelCloseTimer); wheelCloseTimer = null; }
+
+        // Dừng âm thanh quay
+        try { spinAudio.pause(); spinAudio.currentTime = 0; } catch(e){}
+        
+        // BỎ hiệu ứng transition để không méo hình
+        wheelSpinner.style.transition = 'none';
+        wheelSpinner.style.transform = `rotate(${finalDegree}deg)`;
+
+        // Hiển thị thông báo phần thưởng (popup)
+        if (wheelResultTimer) { clearTimeout(wheelResultTimer); wheelResultTimer = null; }
+        showPopup(result.text, result.color || 'rgba(255, 215, 0, 0.9)');
+
+        // Phát âm thanh trúng thưởng
+        try {
+          winAudio.currentTime = 0; winAudio.play().catch(()=>{});
+        } catch(e){}
+
+        // Xử lý kết quả dựa trên loại phần thưởng
+        if (result.value === 'bonus') {
+          wheelSpinCount += 2; // Thêm 2 lượt quay
+          
+          // Cho phép quay lại sau khi thông báo ẩn (3 giây)
+          wheelCloseTimer = setTimeout(() => {
+            wheelSpinner.onclick = spinWheel;
+            wheelSpinner.isSpinning = false;
+          }, 3000);
+        } else if (result.value === 'retry') {
+          wheelSpinCount += 1; // Thêm 1 lượt quay
+          
+          // Chơi lại - giống như bonus, để bánh quay mở để quay tiếp
+          wheelCloseTimer = setTimeout(() => {
+            wheelSpinner.onclick = spinWheel;
+            wheelSpinner.isSpinning = false;
+          }, 3000);
+        } else if (result.value === 'lose') {
+          // Mất lượt - hiển thị kết quả 3 giây rồi đóng
+          wheelCloseTimer = setTimeout(() => {
+            document.getElementById('luck-wheel').classList.remove('show');
+            const spinner = document.getElementById('wheel-spinner');
+            spinner.onclick = spinWheel;
+            wheelCloseTimer = null;
+          }, 3000);
+        } else {
+          // Các phần thưởng điểm số hoặc may mắn
+          wheelCloseTimer = setTimeout(() => {
+            document.getElementById('luck-wheel').classList.remove('show');
+            const spinner = document.getElementById('wheel-spinner');
+            spinner.onclick = spinWheel;
+            wheelCloseTimer = null;
+          }, 3000);
+        }
+
+        wheelSpinner.isSpinning = false;
+      }, spinDuration * 1000); // Sử dụng spinDuration
+    }
+
     beeImg.onload = () => init();
   </script>
+  <div id="wheel-result"></div>
 </body>
 </html>
