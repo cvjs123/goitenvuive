@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vườn Ong Bay - Điểm Danh & Trắc Nghiệm</title>
   <style>
-    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+    body { margin: 0; overflow: hidden; font-family: "Times New Roman", Times, serif; }
     #bg { position: fixed; inset: 0;
       background: url('https://static.vecteezy.com/system/resources/thumbnails/040/806/603/small_2x/ai-generated-a-beautiful-garden-scene-with-butterflies-and-beautiful-flowers-free-video.jpg') center/cover no-repeat;
     }
@@ -260,7 +260,7 @@
     #wheel-result {
       display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
       min-width: 240px; max-width: 70%; font-size: 24px; font-weight: 800;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: "Times New Roman", Times, serif;
       color: #d40a0a; text-align: center; padding: 16px 28px;
       background: linear-gradient(135deg, #00cc44, #00aa33);
       border-radius: 18px; border: 4px solid #ffd700;
@@ -272,6 +272,248 @@
       content: ''; position: fixed; inset: 0;
       background: rgba(0,0,0,0.25); z-index: 3000; border-radius: 0;
     }
+
+
+    /* ======= DARTS (PHI TIÊU) ======= */
+    #toggle-darts-btn {
+      position: fixed; right: 20px; top: 185px;
+      padding: 10px 18px; font-size: 16px;
+      background: rgba(220, 20, 60, 0.95); color: white;
+      border: none; border-radius: 15px; cursor: pointer; z-index: 1200;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    }
+    #toggle-darts-btn:hover { background: rgba(235, 35, 80, 1); }
+
+    #darts-canvas { z-index: 260; }
+
+    #darts-hud {
+      position: fixed; left: 20px; bottom: 20px;
+      z-index: 2700; display: none;
+      max-width: min(520px, 80vw);
+      background: rgba(0,0,0,0.55);
+      color: #fff; padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      font-weight: 800; line-height: 1.35;
+    }
+    #darts-hud .hint { font-weight: 700; opacity: 0.95; }
+    #darts-hud .score { font-size: 22px; margin-top: 6px; }
+
+    /* ======= LEO NÚI GAME ======= */
+    #toggle-climb-btn {
+      position: fixed; right: 20px; top: 240px;
+      padding: 10px 18px; font-size: 16px;
+      background: rgba(34, 139, 34, 0.95); color: white;
+      border: none; border-radius: 15px; cursor: pointer; z-index: 1200;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    }
+    #toggle-climb-btn:hover { background: rgba(50, 180, 50, 1); }
+    #toggle-climb-btn.active-game { background: rgba(220,80,0,0.95); animation: pulse-climb 1.2s infinite; }
+    @keyframes pulse-climb { 0%,100%{box-shadow:0 0 0 0 rgba(220,80,0,0.5);} 50%{box-shadow:0 0 0 10px rgba(220,80,0,0);} }
+
+    /* Modal chọn gói câu hỏi */
+    #climb-setup-modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      align-items: center; justify-content: center; z-index: 500;
+    }
+    #climb-setup-modal.show { display: flex; }
+    #climb-setup-modal .modal-content {
+      background: linear-gradient(135deg,#1a3a1a,#0d2b0d);
+      border: 3px solid #4caf50; border-radius: 24px;
+      padding: 32px; width: 90%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(76,175,80,0.3);
+    }
+    #climb-setup-modal h2 { text-align:center; color:#7dff7d; margin:0 0 24px; font-size:31px; }
+    .climb-pkg-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+    .climb-pkg-btn {
+      padding:22px 10px; border-radius:16px; border:2px solid #4caf50;
+      background:rgba(76,175,80,0.15); color:white; cursor:pointer;
+      font-size:20px; font-weight:bold; text-align:center; transition:all 0.2s;
+    }
+    .climb-pkg-btn:hover { background:rgba(76,175,80,0.4); transform:scale(1.05); border-color:#7dff7d; }
+    .climb-pkg-btn .pkg-score { font-size:43px; color:#7dff7d; display:block; margin-bottom:4px; }
+    .climb-pkg-btn .pkg-label { font-size:16px; opacity:0.8; }
+    #climb-cancel-btn { width:100%; padding:12px; margin-top:6px; border-radius:10px; border:none; background:#555; color:white; font-size:16px; cursor:pointer; }
+    #climb-cancel-btn:hover { background:#777; }
+
+    /* Màn hình trò chơi leo núi */
+    #climb-game {
+      display:none; position:fixed; inset:0; z-index:400;
+      background:linear-gradient(180deg,#87CEEB 0%,#87CEEB 40%,#228B22 40%,#228B22 100%);
+    }
+    #climb-game.show { display:block; }
+    #climb-mountain-canvas { position:absolute; inset:0; width:100%; height:100%; }
+    /* Bảng vinh danh — đỉnh núi */
+    #climb-hall-fame {
+      position: absolute; left: 16px; top: 16px;
+      z-index: 12; width: min(300px, 32vw); max-height: min(64vh, 440px);
+      pointer-events: auto; font-family: "Times New Roman", Times, serif;
+      opacity: 0; animation: climb-hall-in 0.65s ease forwards 0.15s;
+    }
+    @keyframes climb-hall-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    #climb-hall-fame.is-empty .climb-hall-fame-list { display: none; }
+    #climb-hall-fame:not(.is-empty) .climb-hall-fame-empty { display: none; }
+    .climb-hall-fame-inner {
+      background: linear-gradient(145deg, rgba(15, 32, 39, 0.92) 0%, rgba(25, 55, 60, 0.88) 50%, rgba(12, 28, 35, 0.94) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      border-radius: 16px;
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 1px 0 rgba(255, 255, 255, 0.12) inset;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .climb-hall-fame-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px 12px;
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.18), transparent);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    }
+    .climb-hall-fame-icon {
+      font-size: 28px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+    .climb-hall-fame-title {
+      margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #f4e4bc; line-height: 1.25;
+    }
+    .climb-hall-fame-sub {
+      margin: 4px 0 0; font-size: 12px; color: rgba(255, 255, 255, 0.55); font-style: italic; letter-spacing: 0.02em;
+    }
+    .climb-hall-fame-list {
+      list-style: none; margin: 0; padding: 10px 12px 14px; max-height: min(42vh, 360px);
+      overflow-y: auto;
+    }
+    @supports (scrollbar-width: thin) {
+      .climb-hall-fame-list {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(212, 175, 55, 0.5) rgba(0,0,0,0.2);
+      }
+    }
+    .climb-hall-fame-list::-webkit-scrollbar { width: 6px; }
+    .climb-hall-fame-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #d4af37, #8b6914); border-radius: 6px;
+    }
+    .climb-hall-fame-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; margin-bottom: 6px; border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .climb-hall-fame-item:last-child { margin-bottom: 0; }
+    .climb-hall-fame-item:hover {
+      transform: translateX(4px);
+      border-color: rgba(212, 175, 55, 0.35);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+    .climb-hall-fame-item.rank-top-1 {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.06));
+      border-color: rgba(212, 175, 55, 0.45);
+    }
+    .climb-hall-fame-item.rank-top-2 {
+      background: linear-gradient(90deg, rgba(192, 192, 200, 0.2), rgba(192, 192, 200, 0.05));
+      border-color: rgba(180, 180, 190, 0.4);
+    }
+    .climb-hall-fame-item.rank-top-3 {
+      background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.06));
+      border-color: rgba(180, 110, 50, 0.4);
+    }
+    .climb-hall-badge {
+      flex-shrink: 0; width: 32px; text-align: center; font-size: 18px; line-height: 1;
+    }
+    .climb-hall-fame-item .rank-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 11px; font-weight: 700; color: #e8dcc8;
+      background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    .climb-hall-name {
+      font-size: 18px; font-weight: 600; color: #faf6ef;
+      letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .climb-hall-fame-empty {
+      margin: 0; padding: 20px 16px 22px; text-align: center;
+      font-size: 16px; color: rgba(255, 255, 255, 0.45); font-style: italic; line-height: 1.5;
+    }
+    #climb-hud {
+      position:absolute; top:16px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.65); color:white; padding:10px 28px;
+      border-radius:50px; font-size:22px; font-weight:bold;
+      display:flex; gap:24px; align-items:center; z-index:10;
+      border:2px solid rgba(255,255,255,0.2);
+    }
+    #climb-hud .hud-score { color:#7dff7d; }
+    #climb-hud .hud-step { color:#FFD700; }
+    #climb-close-btn {
+      position:absolute; top:16px; right:20px; z-index:20;
+      padding:10px 20px; background:rgba(200,50,50,0.9); color:white;
+      border:none; border-radius:12px; font-size:19px; font-weight:bold; cursor:pointer;
+    }
+    #climb-close-btn:hover { background:#e53935; }
+    #climb-question-box {
+      position:absolute; bottom:0; left:0; right:0;
+      background:transparent;
+      padding:22px 30px 28px; z-index:15;
+    }
+    #climb-question-text {
+      font-size:44px; font-weight:900; color:#FFD54F; text-align:center;
+      margin-bottom:18px; line-height:1.4;
+      max-height: 22vh;
+      overflow-y: auto;
+      padding: 4px 0;
+      background: transparent;
+      border: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      text-shadow:
+        0 3px 14px rgba(0,0,0,0.75),
+        0 0 18px rgba(255, 200, 80, 0.25);
+    }
+    #climb-options-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:1400px; margin:0 auto;
+    }
+    .climb-option {
+      padding:24px 20px; border-radius:16px; border:2px solid rgba(255,255,255,0.25);
+      background:transparent; color:#F5F7FF; font-size:37px; font-weight:800;
+      cursor:pointer; text-align:center; transition:all 0.2s; line-height:1.4;
+      min-height: 104px;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.65);
+    }
+    .climb-option:hover { background:rgba(255,255,255,0.28); transform:scale(1.03); }
+    .climb-option.correct { background:#00c853; border-color:#69f0ae; }
+    .climb-option.wrong { background:#d32f2f; border-color:#ff6b6b; }
+    #climb-result-banner {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      background:linear-gradient(135deg,#1b5e20,#2e7d32);
+      border:4px solid #69f0ae; border-radius:24px; padding:28px 48px;
+      text-align:center; z-index:50; display:none;
+      box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    }
+    #climb-result-banner .result-emoji { font-size:72px; }
+    #climb-result-banner .result-text { font-size:34px; font-weight:900; color:white; margin:10px 0 4px; }
+    #climb-result-banner .result-sub { font-size:22px; color:#a5d6a7; }
+    #climb-finish-overlay {
+      display:none; position:absolute; inset:0; z-index:60;
+      background:rgba(0,0,0,0.82); align-items:center; justify-content:center; flex-direction:column;
+    }
+    #climb-finish-overlay.show { display:flex; }
+    #climb-finish-overlay .finish-emoji { font-size:108px; animation:bounce-finish 0.8s infinite alternate; }
+    @keyframes bounce-finish { from{transform:translateY(0);} to{transform:translateY(-20px);} }
+    #climb-finish-overlay .finish-title { font-size:50px; font-weight:900; color:#FFD700; margin:16px 0 8px; text-align:center; }
+    #climb-finish-overlay .finish-score { font-size:34px; color:#7dff7d; margin-bottom:20px; }
+    #climb-finish-overlay .finish-btn {
+      padding:14px 40px; background:#4caf50; color:white; border:none;
+      border-radius:14px; font-size:24px; font-weight:bold; cursor:pointer; margin:6px;
+    }
+    #climb-finish-overlay .finish-btn:hover { background:#66bb6a; }
+    #climb-finish-overlay .finish-btn.secondary { background:#555; }
+    #climb-finish-overlay .finish-btn.secondary:hover { background:#777; }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
@@ -280,18 +522,102 @@
   <div id="bg"></div>
   <video id="video" autoplay muted width="1280" height="720"></video>
   <canvas id="bees-canvas"></canvas>
+  <canvas id="darts-canvas"></canvas>
   <div id="preview"><canvas id="hand-canvas"></canvas></div>
 
   <button id="manage-btn">📝 Danh Sách</button>
   <button id="question-btn">❓ Câu Hỏi</button>
   <button id="toggle-music-btn">🎵 Bật</button>
   <button id="toggle-wheel-btn">🎡 Vòng quay: Bật</button>
+  <button id="toggle-darts-btn">🎯 Phi tiêu: Bật</button>
+  <button id="toggle-climb-btn">⛰️ Leo Núi</button>
+
+  <!-- MODAL CHỌN GÓI LEO NÚI -->
+  <div id="climb-setup-modal">
+    <div class="modal-content">
+      <h2>⛰️ Trò Chơi Leo Núi</h2>
+      <div id="climb-student-badge" style="text-align:center;margin:0 0 16px;padding:12px 20px;background:rgba(255,215,0,0.15);border:2px solid #FFD700;border-radius:14px;font-size:22px;font-weight:900;color:#FFD700;display:none;"></div>
+      <p style="color:#a5d6a7;text-align:center;margin:0 0 14px;font-size:15px;">Chọn gói câu hỏi để bắt đầu leo núi!</p>
+      <div class="climb-pkg-grid">
+        <button class="climb-pkg-btn" data-count="2" data-score="6">
+          <span class="pkg-score">🏆 6 điểm</span>
+          <strong>2 câu hỏi</strong>
+          <span class="pkg-label">Dễ • Nhanh</span>
+        </button>
+        <button class="climb-pkg-btn" data-count="3" data-score="7">
+          <span class="pkg-score">🏆 7 điểm</span>
+          <strong>3 câu hỏi</strong>
+          <span class="pkg-label">Trung bình</span>
+        </button>
+        <button class="climb-pkg-btn" data-count="4" data-score="8">
+          <span class="pkg-score">🏆 8 điểm</span>
+          <strong>4 câu hỏi</strong>
+          <span class="pkg-label">Khó</span>
+        </button>
+        <button class="climb-pkg-btn" data-count="5" data-score="9">
+          <span class="pkg-score">🏆 9 điểm</span>
+          <strong>5 câu hỏi</strong>
+          <span class="pkg-label">Rất khó • Thử thách</span>
+        </button>
+      </div>
+      <button id="climb-cancel-btn">✖ Hủy</button>
+    </div>
+  </div>
+
+  <!-- MÀN HÌNH TRÒ CHƠI LEO NÚI -->
+  <div id="climb-game">
+    <canvas id="climb-mountain-canvas"></canvas>
+    <aside id="climb-hall-fame" class="is-empty" aria-label="Bảng vinh danh chinh phục đỉnh núi">
+      <div class="climb-hall-fame-inner">
+        <div class="climb-hall-fame-header">
+          <span class="climb-hall-fame-icon" aria-hidden="true">🏔️</span>
+          <div>
+            <h3 class="climb-hall-fame-title">Vinh danh đỉnh núi</h3>
+            <p class="climb-hall-fame-sub">Những nhà leo núi chinh phục thành công</p>
+          </div>
+        </div>
+        <ul id="climb-hall-fame-list" class="climb-hall-fame-list"></ul>
+        <p id="climb-hall-fame-empty" class="climb-hall-fame-empty">Chưa có học sinh nào chinh phục đỉnh. Hãy cổ vũ các em!</p>
+      </div>
+    </aside>
+    <div id="climb-hud">
+      <span>⛰️ <span id="climb-player-name-hud">Leo Núi</span></span>
+      <span class="hud-step">Chặng: <span id="climb-step-display">0</span>/<span id="climb-total-display">0</span></span>
+      <span class="hud-score">Điểm: <span id="climb-score-display">—</span></span>
+    </div>
+    <button id="climb-close-btn">✖ Thoát</button>
+    <div id="climb-result-banner">
+      <div class="result-emoji" id="climb-result-emoji">✅</div>
+      <div class="result-text" id="climb-result-text">Đúng rồi!</div>
+      <div class="result-sub" id="climb-result-sub"></div>
+    </div>
+    <div id="climb-question-box">
+      <div id="climb-question-text">Câu hỏi sẽ hiển thị ở đây...</div>
+      <div id="climb-options-grid">
+        <div class="climb-option" data-choice="A">A. ...</div>
+        <div class="climb-option" data-choice="B">B. ...</div>
+        <div class="climb-option" data-choice="C">C. ...</div>
+        <div class="climb-option" data-choice="D">D. ...</div>
+      </div>
+    </div>
+    <div id="climb-finish-overlay">
+      <div class="finish-emoji">🎉</div>
+      <div class="finish-title" id="climb-finish-title">Chinh Phục Đỉnh Núi!</div>
+      <div class="finish-score" id="climb-finish-score">Điểm: 9</div>
+      <button class="finish-btn" id="climb-exit-btn">🏠 Về Màn Chính</button>
+    </div>
+  </div>
 
   <div id="unlock-screen">
     <div>
       <h1>🐝 Vườn Ong Bay</h1>
       <p>Click/chạm màn hình để bật âm thanh và bắt đầu!</p>
     </div>
+  </div>
+
+  <div id="darts-hud">
+    <div class="hint">🎯 Phi tiêu: <span id="darts-chances">0</span> lượt • ✌ gọi phi tiêu • ☝ ném</div>
+    <div class="score" id="darts-last-score" style="display:none;"></div>
   </div>
 
   <div id="quiz-question"></div>
@@ -301,6 +627,8 @@
     <div class="quiz-option" data-choice="C">C. Đáp án C</div>
     <div class="quiz-option" data-choice="D">D. Đáp án D</div>
   </div>
+
+  <div id="dart-score-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px; border-radius:10px; font-size:48px; font-weight:bold; z-index:3000; border: 4px solid rgba(255,255,255,0.5);"></div>
 
   <div id="luck-wheel">
     <div class="wheel-pointer"></div>
@@ -498,6 +826,7 @@
       saveClassData();
       renderClassTabs();
       updateStudentList();
+      syncClassRuntimeState();
       cancelEditClass();
     }
 
@@ -562,8 +891,10 @@
     const video = document.getElementById('video');
     const handCanvas = document.getElementById('hand-canvas');
     const beesCanvas = document.getElementById('bees-canvas');
+    const dartsCanvas = document.getElementById('darts-canvas');
     const handCtx = handCanvas.getContext('2d');
     const beesCtx = beesCanvas.getContext('2d');
+    const dartsCtx = dartsCanvas.getContext('2d');
     const drawingUtils = new DrawingUtils(handCtx);
 
     const beeImg = new Image();
@@ -601,7 +932,72 @@
     document.getElementById('unlock-screen').onclick = unlockAudio;
 
     let questions = JSON.parse(localStorage.getItem('beeQuestions')) || [];
-    let calledStudents = JSON.parse(localStorage.getItem('beeCalledStudents')) || [];
+    let calledStudentsByClass = JSON.parse(localStorage.getItem('beeCalledStudentsByClass')) || {};
+    let climbUsedQuestionsByClass = JSON.parse(localStorage.getItem('beeClimbUsedQuestionsByClass')) || {};
+    let climbWinnersByClass = JSON.parse(localStorage.getItem('beeClimbWinnersByClass')) || {};
+    let calledStudents = [];
+    let climbUsedQuestionKeys = [];
+    let climbWinners = [];
+
+    function getQuestionKey(q) {
+      return [q.question, q.a, q.b, q.c, q.d, q.correct].join('||');
+    }
+    function saveCalledStudentsByClass() {
+      localStorage.setItem('beeCalledStudentsByClass', JSON.stringify(calledStudentsByClass));
+    }
+    function saveClimbUsedQuestionsByClass() {
+      localStorage.setItem('beeClimbUsedQuestionsByClass', JSON.stringify(climbUsedQuestionsByClass));
+    }
+    function saveClimbWinnersByClass() {
+      localStorage.setItem('beeClimbWinnersByClass', JSON.stringify(climbWinnersByClass));
+    }
+    function escapeHtml(str) {
+      if (str == null) return '';
+      const d = document.createElement('div');
+      d.textContent = String(str);
+      return d.innerHTML;
+    }
+    function refreshClimbHallOfFame() {
+      const panel = document.getElementById('climb-hall-fame');
+      const list = document.getElementById('climb-hall-fame-list');
+      const emptyEl = document.getElementById('climb-hall-fame-empty');
+      if (!panel || !list || !emptyEl) return;
+      if (!climbWinners.length) {
+        list.innerHTML = '';
+        panel.classList.add('is-empty');
+        return;
+      }
+      panel.classList.remove('is-empty');
+      const medals = ['🥇', '🥈', '🥉'];
+      list.innerHTML = climbWinners.map((name, i) => {
+        const rank = i + 1;
+        const tier = rank <= 3 ? `rank-top-${rank}` : '';
+        const badge = rank <= 3 ? medals[rank - 1] : `<span class="rank-num">${rank}</span>`;
+        return `<li class="climb-hall-fame-item ${tier}"><span class="climb-hall-badge">${badge}</span><span class="climb-hall-name">${escapeHtml(name)}</span></li>`;
+      }).join('');
+    }
+    function syncClassRuntimeState() {
+      const classId = getActiveClass()?.id || 'class_default';
+      const currentStudents = getCurrentStudents();
+
+      const calledRaw = Array.isArray(calledStudentsByClass[classId]) ? calledStudentsByClass[classId] : [];
+      calledStudents = calledRaw.filter(name => currentStudents.includes(name));
+      calledStudentsByClass[classId] = calledStudents;
+      saveCalledStudentsByClass();
+
+      const usedRaw = Array.isArray(climbUsedQuestionsByClass[classId]) ? climbUsedQuestionsByClass[classId] : [];
+      const validKeys = new Set(questions.map(getQuestionKey));
+      climbUsedQuestionKeys = usedRaw.filter(key => validKeys.has(key));
+      climbUsedQuestionsByClass[classId] = climbUsedQuestionKeys;
+      saveClimbUsedQuestionsByClass();
+
+      const winnersRaw = Array.isArray(climbWinnersByClass[classId]) ? climbWinnersByClass[classId] : [];
+      climbWinners = winnersRaw.filter(name => currentStudents.includes(name));
+      climbWinnersByClass[classId] = climbWinners;
+      saveClimbWinnersByClass();
+      refreshClimbHallOfFame();
+    }
+    syncClassRuntimeState();
 
     let quizQueue = [], currentQuizIndex = 0, currentQuiz = null, quizStarted = false;
     let inQuizMode = false, questionShown = false, questionShowTime = 0;
@@ -609,6 +1005,225 @@
     let rolling = false, lastRoll = 0;
     let handX = innerWidth/2, handY = innerHeight/2, targetHandX = handX, targetHandY = handY;
     let recognizer = null, selectedCameraId = null;
+
+    // Darts (phi tiêu)
+    const toggleDartsBtn = document.getElementById('toggle-darts-btn');
+    const dartsHud = document.getElementById('darts-hud');
+    const dartsChancesEl = document.getElementById('darts-chances');
+    const dartsLastScoreEl = document.getElementById('darts-last-score');
+
+    let dartsEnabled = localStorage.getItem('dartsEnabled') !== 'false';
+    let dartChances = 0;
+    let dartsActive = false;
+    let dartsArmed = false; // set when showing ✌ (Victory)
+    let lastGesture = null;
+    let aimX = innerWidth/2, aimY = innerHeight/2;
+    let lastHit = null; // {x,y,score,ts,label}
+    let currentDartPlayer = null;
+
+    let dartDifficulty = 0;
+    let dartBoardScale = 1, dartBoardScaleTarget = 1;
+    let dartBoardOffsetX = 0, dartBoardOffsetY = 0;
+    let dartBoardOffsetXTarget = 0, dartBoardOffsetYTarget = 0;
+    let dartBoardJumpX = 0, dartBoardJumpY = 0;
+    let dartBoardJumpTime = 0;
+    let dartScoreShift = 0;
+
+    const resetDartDifficulty = () => {
+      dartDifficulty = 0;
+      dartBoardScale = 1;
+      dartBoardScaleTarget = 1;
+      dartBoardOffsetX = 0; dartBoardOffsetY = 0;
+      dartBoardOffsetXTarget = (Math.random() * 2 - 1) * 12;
+      dartBoardOffsetYTarget = (Math.random() * 2 - 1) * 12;
+      dartBoardJumpX = 0; dartBoardJumpY = 0;
+      dartBoardJumpTime = 0;
+      dartScoreShift = 0;
+    };
+
+    const stepDartDifficulty = () => {
+      dartDifficulty += 1;
+      dartBoardScaleTarget = Math.max(0.65, 1 - dartDifficulty * 0.07);
+      const range = Math.min(140, 18 + dartDifficulty * 14);
+      dartBoardOffsetXTarget = (Math.random() * 2 - 1) * range;
+      dartBoardOffsetYTarget = (Math.random() * 2 - 1) * range;
+      // Thêm hiệu ứng nhảy điểm
+      dartBoardJumpX = (Math.random() * 2 - 1) * (10 + dartDifficulty * 5);
+      dartBoardJumpY = (Math.random() * 2 - 1) * (10 + dartDifficulty * 5);
+    };
+
+    const getDartBoard = () => {
+      const cx = innerWidth / 2 + dartBoardOffsetX;
+      const cy = innerHeight / 2 + dartBoardOffsetY;
+      const R = Math.min(innerWidth, innerHeight) * 0.34 * dartBoardScale;
+      const ringW = R / 5;
+      // Thêm hiệu ứng nhảy điểm
+      const jumpX = dartBoardJumpX * Math.sin(dartBoardJumpTime * 0.02);
+      const jumpY = dartBoardJumpY * Math.cos(dartBoardJumpTime * 0.02);
+      return { cx: cx + jumpX, cy: cy + jumpY, R, ringW };
+    };
+
+    const updateDartsBtn = () => {
+      toggleDartsBtn.textContent = dartsEnabled ? '🎯 Phi tiêu: Bật' : '🎯 Phi tiêu: Tắt';
+      toggleDartsBtn.style.background = dartsEnabled ? 'rgba(220, 20, 60, 0.95)' : 'rgba(150,150,150,0.8)';
+    };
+    const updateDartsHud = () => {
+      dartsChancesEl.textContent = String(dartChances);
+      const showHud = dartsEnabled && (dartChances > 0 || dartsActive || (lastHit && Date.now() - lastHit.ts < 2500));
+      dartsHud.style.display = showHud ? 'block' : 'none';
+      const hintEl = dartsHud.querySelector('.hint');
+      hintEl.innerHTML = `🎯 Phi tiêu: <span id="darts-chances">${dartChances}</span> lượt • ✌ gọi phi tiêu • ☝ ném`;
+      if (lastHit && Date.now() - lastHit.ts < 2500) {
+        dartsLastScoreEl.style.display = 'block';
+        dartsLastScoreEl.textContent = 'Điểm: ' + lastHit.label;
+      } else {
+        dartsLastScoreEl.style.display = 'none';
+        dartsLastScoreEl.textContent = '';
+      }
+    };
+    updateDartsBtn();
+    updateDartsHud();
+    toggleDartsBtn.onclick = () => {
+      dartsEnabled = !dartsEnabled;
+      localStorage.setItem('dartsEnabled', dartsEnabled);
+      if (!dartsEnabled) { dartsActive = false; dartsArmed = false; dartChances = 0; lastHit = null; currentDartPlayer = null; }
+      updateDartsBtn(); updateDartsHud();
+    };
+
+    let dartAwardTimer = null;
+    const awardDartChance = () => {
+      if (!dartsEnabled) return;
+      if (dartAwardTimer) { clearTimeout(dartAwardTimer); dartAwardTimer = null; }
+      dartAwardTimer = setTimeout(() => {
+        dartChances += 1;
+        // Chọn học sinh để chơi phi tiêu
+        const students = getCurrentStudents();
+        if (students.length > 0) {
+          currentDartPlayer = students[Math.floor(Math.random() * students.length)];
+        }
+        // Sau khi trả lời đúng 3s mới hiện vòng phi tiêu
+        dartsActive = true;
+        dartsArmed = false;
+        resetDartDifficulty();
+        document.getElementById('luck-wheel').classList.remove('show');
+        updateDartsHud();
+        dartAwardTimer = null;
+      }, 3000);
+    };
+
+    function scoreDartHit(x, y) {
+      const b = getDartBoard();
+      const R = b.R;
+      const d = Math.hypot(x - b.cx, y - b.cy);
+      if (d > R) return { score: 0, label: 'Trượt (0)' };
+
+      const ringW = b.ringW;
+      const ringIdx = Math.min(4, Math.floor(d / ringW)); // 0..4 (từ tâm ra ngoài)
+      // Điểm số chạy từ trong ra ngoài
+      const shiftedIdx = (ringIdx + dartScoreShift) % 5;
+      const score = 9 - shiftedIdx; // tâm=9, ngoài=5, dịch chuyển
+      return { score: score, label: String(score) + ' điểm' };
+    }
+
+    function renderDartboard() {
+      dartsCtx.clearRect(0, 0, dartsCanvas.width, dartsCanvas.height);
+      if (!dartsEnabled) return;
+
+      const show = dartsActive || dartChances > 0 || (lastHit && Date.now() - lastHit.ts < 2500);
+      if (!show) return;
+
+      if (dartsActive) {
+        dartsCtx.fillStyle = 'rgba(0,0,0,0.25)';
+        dartsCtx.fillRect(0, 0, innerWidth, innerHeight);
+      }
+
+      const b = getDartBoard();
+      const cx = b.cx, cy = b.cy;
+      const R = b.R;
+
+      const twoPi = Math.PI * 2;
+      const ringW = b.ringW;
+
+      dartsCtx.save();
+      dartsCtx.translate(cx, cy);
+
+      // 5 vòng điểm với màu sắc bắt mắt và nhảy theo điểm
+      const baseColors = [
+        [255, 100, 100, 0.9], // đỏ
+        [100, 255, 100, 0.9], // xanh lá
+        [100, 100, 255, 0.9], // xanh dương
+        [255, 255, 100, 0.9], // vàng
+        [255, 100, 255, 0.9]  // hồng
+      ];
+      const timeHue = (dartBoardJumpTime * 0.02) % (Math.PI * 2);
+      const ringColors = baseColors.map(([r,g,b,a], i) => {
+        const shift = Math.sin(timeHue + i * Math.PI / 3) * 100 + 100; // brighter
+        const hue = (timeHue * 180 / Math.PI + i * 72) % 360;
+        return `hsl(${hue}, 100%, ${Math.min(100, 50 + shift / 2)}%)`;
+      });
+
+      for (let i = 4; i >= 0; i--) {
+        const jumpFactor = Math.sin(dartScoreShift * 0.5 + i) * 0.1; // nhảy theo điểm
+        const radius = ringW * (i + 1 + jumpFactor);
+        dartsCtx.beginPath();
+        dartsCtx.arc(0, 0, radius, 0, twoPi);
+        dartsCtx.fillStyle = ringColors[i];
+        dartsCtx.fill();
+      }
+
+      // dartsCtx.strokeStyle = 'rgba(0,0,0,0.1)';
+      // dartsCtx.lineWidth = 1;
+      // for (let i = 1; i <= 5; i++) {
+      //   const jumpFactor = Math.sin(dartScoreShift * 0.5 + (i-1)) * 0.1;
+      //   const radius = ringW * (i + jumpFactor);
+      //   dartsCtx.beginPath();
+      //   dartsCtx.arc(0, 0, radius, 0, twoPi);
+      //   dartsCtx.stroke();
+      // }
+
+      // Nhãn điểm chạy từ trong ra ngoài (to hơn) với màu tương phản
+      dartsCtx.fillStyle = 'rgba(0,0,0,0.9)';
+      dartsCtx.font = 'bold 32px Arial';
+      dartsCtx.textAlign = 'center';
+      dartsCtx.textBaseline = 'middle';
+      for (let i = 0; i < 5; i++) {
+        const shiftedIdx = (i + dartScoreShift) % 5;
+        const score = 9 - shiftedIdx;
+        const jumpFactor = Math.sin(dartScoreShift * 0.5 + i) * 0.1;
+        const rMid = ringW * i + ringW * 0.5 + jumpFactor * ringW;
+        dartsCtx.fillText(String(score), 0, -rMid);
+      }
+
+      dartsCtx.restore();
+
+      if (dartsActive) {
+        dartsCtx.save();
+        dartsCtx.strokeStyle = 'rgba(255,255,0,0.9)';
+        dartsCtx.lineWidth = 3;
+        dartsCtx.beginPath();
+        dartsCtx.arc(aimX, aimY, 12, 0, twoPi);
+        dartsCtx.stroke();
+        dartsCtx.beginPath();
+        dartsCtx.moveTo(aimX - 18, aimY);
+        dartsCtx.lineTo(aimX + 18, aimY);
+        dartsCtx.moveTo(aimX, aimY - 18);
+        dartsCtx.lineTo(aimX, aimY + 18);
+        dartsCtx.stroke();
+        dartsCtx.restore();
+      }
+
+      if (lastHit && Date.now() - lastHit.ts < 2500) {
+        dartsCtx.save();
+        dartsCtx.fillStyle = 'rgba(255,0,0,0.9)';
+        dartsCtx.strokeStyle = 'rgba(255,255,255,0.8)';
+        dartsCtx.lineWidth = 4;
+        dartsCtx.beginPath();
+        dartsCtx.arc(lastHit.x, lastHit.y, 8, 0, twoPi);
+        dartsCtx.fill();
+        dartsCtx.stroke();
+        dartsCtx.restore();
+      }
+    }
 
     function updateStudentList() {
       const list = document.getElementById('student-list');
@@ -730,6 +1345,7 @@
       if (question && a && b && c && d && correct) {
         questions.push({question,a,b,c,d,correct});
         localStorage.setItem('beeQuestions', JSON.stringify(questions));
+        syncClassRuntimeState();
         ['new-question','option-a','option-b','option-c','option-d'].forEach(id => document.getElementById(id).value='');
         document.getElementById('correct-answer').value='';
         updateQuestionList();
@@ -738,7 +1354,10 @@
 
     document.getElementById('clear-questions-btn').onclick = () => {
       if (confirm('Xóa tất cả câu hỏi?')) {
-        questions = []; localStorage.setItem('beeQuestions', JSON.stringify(questions)); updateQuestionList();
+        questions = [];
+        localStorage.setItem('beeQuestions', JSON.stringify(questions));
+        syncClassRuntimeState();
+        updateQuestionList();
       }
     };
 
@@ -803,6 +1422,7 @@
         }
       });
       localStorage.setItem('beeQuestions', JSON.stringify(questions));
+      syncClassRuntimeState();
       updateQuestionList();
       alert(`Đã thêm ${added} câu hỏi mới (tổng: ${questions.length} câu)!`);
       document.getElementById('questions-file').value='';
@@ -866,6 +1486,7 @@
         if (isCorrect) {
           btn.classList.add('correct');
           if (audioUnlocked) correctAudio.play().catch(()=>{});
+          awardDartChance();
           setTimeout(() => {
             quizQuestion.classList.remove('show'); quizOptions.classList.remove('show');
             optionButtons.forEach(b=>{b.classList.remove('correct','wrong');b.textContent='';});
@@ -905,6 +1526,7 @@
     const resize = () => {
       beesCanvas.width=innerWidth; beesCanvas.height=innerHeight;
       handCanvas.width=handCanvas.offsetWidth; handCanvas.height=handCanvas.offsetHeight;
+      dartsCanvas.width=innerWidth; dartsCanvas.height=innerHeight;
     };
     window.onresize = resize;
 
@@ -962,28 +1584,91 @@
         drawingUtils.drawLandmarks(lm, {color:'#FFFFFF',radius:8});
         targetHandX = (1-lm[9].x)*innerWidth;
         targetHandY = lm[9].y*innerHeight;
+        aimX = (1-lm[8].x)*innerWidth;
+        aimY = lm[8].y*innerHeight;
 
         if (results.gestures.length > 0) {
           const gesture = results.gestures[0][0].categoryName;
           const students = getCurrentStudents();
-          if (gesture==="Open_Palm" && !rolling && !inQuizMode) {
-            rolling=true; if(audioUnlocked) buzzAudio.play().catch(()=>{});
-          }
-          if (gesture==="Pointing_Up" && rolling) {
-            rolling=false; buzzAudio.pause(); buzzAudio.currentTime=0;
-            selectTime=Date.now(); questionShown=false; questionShowTime=Date.now()+3000;
-            const avail = students.filter(s=>!calledStudents.includes(s));
-            selectedStudent = avail.length>0 ? avail[Math.floor(Math.random()*avail.length)] : null;
-            if(audioUnlocked) selectAudio.play().catch(()=>{});
-            if (questions.length > 0) {
-              if (!quizStarted) { quizQueue=[...questions].sort(()=>Math.random()-0.5); currentQuizIndex=0; quizStarted=true; }
-              if (currentQuizIndex < quizQueue.length) {
-                currentQuiz=quizQueue[currentQuizIndex];
-                optionButtons.forEach(b=>{b.textContent='';b.classList.remove('correct','wrong');b.style.pointerEvents='none';});
-                inQuizMode=true;
+
+          let handled = false;
+          if (dartsEnabled && dartChances > 0 && !quizOptions.classList.contains('show')) {
+            if (!dartsActive && !rolling && gesture === "Victory") {
+              dartsActive = true;
+              dartsArmed = true;
+              resetDartDifficulty();
+              document.getElementById('luck-wheel').classList.remove('show');
+              handled = true;
+            } else if (dartsActive) {
+              if (gesture === "Victory") { dartsArmed = true; handled = true; }
+              if (gesture === "Pointing_Up" && dartsArmed && lastGesture === "Victory") {
+                const hit = scoreDartHit(aimX, aimY);
+                lastHit = { x: aimX, y: aimY, score: hit.score, label: hit.label, ts: Date.now() };
+                // Hiển thị thông báo điểm với màu đối nghịch
+                const popup = document.getElementById('dart-score-popup');
+                const timeHue = (dartBoardJumpTime * 0.02) % (Math.PI * 2);
+                const hue = (timeHue * 180 / Math.PI) % 360;
+                const complementaryHue = (hue + 180) % 360;
+                popup.style.background = `hsl(${complementaryHue}, 80%, 70%)`;
+                popup.style.color = `hsl(${hue}, 100%, 20%)`;
+                popup.textContent = hit.label;
+                popup.style.display = 'block';
+                setTimeout(() => popup.style.display = 'none', 2000);
+                dartsArmed = false;
+                dartChances = Math.max(0, dartChances - 1);
+                if (audioUnlocked) winAudio.play().catch(()=>{});
+                if (dartChances > 0) {
+                  stepDartDifficulty();
+                } else {
+                  dartsActive = false;
+                }
+                handled = true;
               }
             }
           }
+
+          if (!handled) {
+            if (gesture==="Open_Palm" && !rolling && !inQuizMode && !dartsActive && !climbActive && !document.getElementById('luck-wheel').classList.contains('show')) {
+              rolling=true; if(audioUnlocked) buzzAudio.play().catch(()=>{});
+            }
+            if (gesture==="Pointing_Up" && rolling && !climbActive) {
+              rolling=false; buzzAudio.pause(); buzzAudio.currentTime=0;
+              selectTime=Date.now(); questionShown=false; questionShowTime=Date.now()+3000;
+              const avail = students.filter(s=>!calledStudents.includes(s));
+              selectedStudent = avail.length>0 ? avail[Math.floor(Math.random()*avail.length)] : null;
+              if (!selectedStudent) {
+                alert('Tất cả học sinh trong lớp đã được gọi 1 lần.');
+                inQuizMode = false;
+                questionShown = false;
+                selectedStudent = null;
+              }
+              if (selectedStudent && !calledStudents.includes(selectedStudent)) {
+                calledStudents.push(selectedStudent);
+                calledStudentsByClass[getActiveClass()?.id || 'class_default'] = calledStudents;
+                saveCalledStudentsByClass();
+              }
+              if(selectedStudent && audioUnlocked) selectAudio.play().catch(()=>{});
+              if (climbModeEnabled && selectedStudent) {
+                inQuizMode = false;
+                questionShown = false;
+                quizQuestion.classList.remove('show');
+                quizOptions.classList.remove('show');
+                if (climbSetupTimer) clearTimeout(climbSetupTimer);
+                climbSetupTimer = setTimeout(() => {
+                  if (climbModeEnabled && !climbActive && selectedStudent) openClimbSetupForStudent(selectedStudent);
+                  climbSetupTimer = null;
+                }, 3000);
+              } else if (questions.length > 0) {
+                if (!quizStarted) { quizQueue=[...questions].sort(()=>Math.random()-0.5); currentQuizIndex=0; quizStarted=true; }
+                if (currentQuizIndex < quizQueue.length) {
+                  currentQuiz=quizQueue[currentQuizIndex];
+                  optionButtons.forEach(b=>{b.textContent='';b.classList.remove('correct','wrong');b.style.pointerEvents='none';});
+                  inQuizMode=true;
+                }
+              }
+            }
+          }
+          lastGesture = gesture;
         }
       }
 
@@ -1002,8 +1687,12 @@
       handY += (targetHandY-handY)*0.3;
 
       const students = getCurrentStudents();
+      const eligibleStudents = students.filter(s => !calledStudents.includes(s));
       if (rolling && students.length>0 && time-lastRoll>200) {
-        selectedStudent=students[Math.floor(Math.random()*students.length)]; lastRoll=time;
+        if (eligibleStudents.length > 0) {
+          selectedStudent = eligibleStudents[Math.floor(Math.random()*eligibleStudents.length)];
+          lastRoll=time;
+        }
       }
 
       beesCtx.clearRect(0,0,innerWidth,innerHeight);
@@ -1037,6 +1726,17 @@
           beesCtx.shadowBlur=0; beesCtx.restore();
         });
       }
+      if (dartsEnabled && (dartsActive || dartChances > 0)) {
+        dartBoardOffsetX += (dartBoardOffsetXTarget - dartBoardOffsetX) * 0.08;
+        dartBoardOffsetY += (dartBoardOffsetYTarget - dartBoardOffsetY) * 0.08;
+        dartBoardScale += (dartBoardScaleTarget - dartBoardScale) * 0.12;
+        // Cập nhật thời gian nhảy điểm
+        dartBoardJumpTime += 1;
+        // Cập nhật dịch chuyển điểm số (nhanh hơn)
+        dartScoreShift = Math.floor(dartBoardJumpTime / 15) % 5;
+      }
+      renderDartboard();
+      updateDartsHud();
       requestAnimationFrame(loop);
     }
 
@@ -1090,6 +1790,414 @@
     }
 
     beeImg.onload = () => init();
+
+    // ============================================================
+    //  GAME LEO NÚI - Luồng mới
+    //  1. GV bật chế độ (toggle)
+    //  2. Gọi tên HS như bình thường
+    //  3. HS lên bảng → modal chọn gói hiện ra (có tên HS)
+    //  4. Chọn gói → game leo núi bắt đầu
+    //  5. Kết thúc → "Về Màn Chính" → tiếp tục gọi HS khác
+    // ============================================================
+    const climbSetupModal = document.getElementById('climb-setup-modal');
+    const climbGameEl    = document.getElementById('climb-game');
+    const climbMtnCanvas = document.getElementById('climb-mountain-canvas');
+    const climbMtnCtx    = climbMtnCanvas.getContext('2d');
+    const toggleClimbBtn = document.getElementById('toggle-climb-btn');
+
+    let climbModeEnabled = false;  // chế độ leo núi bật/tắt
+    let climbActive      = false;  // đang chơi game leo núi
+    let climbTotalQ = 0, climbMaxScore = 0, climbCurrentStep = 0;
+    let climbQueue = [], climbCurrentQ = null;
+    let climbAnswered = false, climbSuccessCount = 0;
+    let climbAnimFrame = null;
+    let climbCharY = 0, climbCharYTarget = 0;
+    let climbStudentName = '';
+    let climbSetupTimer = null;
+
+    // ── Toggle chế độ leo núi ──
+    toggleClimbBtn.onclick = () => {
+      climbModeEnabled = !climbModeEnabled;
+      if (climbModeEnabled) {
+        toggleClimbBtn.textContent = '⛰️ Leo Núi: Bật';
+        toggleClimbBtn.classList.add('active-game');
+      } else {
+        toggleClimbBtn.textContent = '⛰️ Leo Núi';
+        toggleClimbBtn.classList.remove('active-game');
+        if (climbSetupTimer) { clearTimeout(climbSetupTimer); climbSetupTimer = null; }
+        // Nếu đang chơi thì đóng
+        if (climbActive) closeClimbGame(false);
+      }
+    };
+
+    // ── Hủy chọn gói ──
+    document.getElementById('climb-cancel-btn').onclick = () => {
+      climbSetupModal.classList.remove('show');
+      // Khôi phục bầy ong có thể quay lại
+    };
+
+    // ── Mở modal chọn gói khi HS được chọn (gọi từ gesture loop) ──
+    function openClimbSetupForStudent(studentName) {
+      climbStudentName = studentName || '';
+      const badge = document.getElementById('climb-student-badge');
+      if (climbStudentName) {
+        badge.textContent = '🎒 ' + climbStudentName;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+      climbSetupModal.classList.add('show');
+    }
+
+    // ── Chọn gói → bắt đầu game ──
+    document.querySelectorAll('.climb-pkg-btn').forEach(btn => {
+      btn.onclick = () => {
+        const count = parseInt(btn.dataset.count);
+        const score = parseInt(btn.dataset.score);
+        if (!questions.length) { alert('Chưa có câu hỏi! Hãy thêm câu hỏi trước.'); return; }
+        const started = startClimbGame(count, score);
+        if (started) climbSetupModal.classList.remove('show');
+      };
+    });
+
+    function startClimbGame(totalQ, maxScore) {
+      climbTotalQ = totalQ; climbMaxScore = maxScore;
+      climbCurrentStep = 0; climbSuccessCount = 0;
+      climbAnswered = false; climbCharY = 0; climbCharYTarget = 0;
+
+      const available = questions.filter(q => !climbUsedQuestionKeys.includes(getQuestionKey(q)));
+      if (!available.length) {
+        alert('Đã hết câu hỏi cho trò Leo Núi. Hãy thêm câu hỏi mới.');
+        return false;
+      }
+      if (available.length < totalQ) {
+        alert(`Chỉ còn ${available.length} câu chưa dùng. Vui lòng chọn gói phù hợp.`);
+        return false;
+      }
+
+      const shuffled = [...available].sort(() => Math.random() - 0.5);
+      climbQueue = shuffled.slice(0, totalQ);
+      climbQueue.forEach(q => climbUsedQuestionKeys.push(getQuestionKey(q)));
+      climbUsedQuestionsByClass[getActiveClass()?.id || 'class_default'] = climbUsedQuestionKeys;
+      saveClimbUsedQuestionsByClass();
+
+      climbActive = true;
+      // Dừng bầy ong & quiz bình thường
+      if (rolling) { rolling = false; buzzAudio.pause(); buzzAudio.currentTime = 0; }
+      inQuizMode = false; questionShown = false;
+      quizQuestion.classList.remove('show'); quizOptions.classList.remove('show');
+
+      climbGameEl.classList.add('show');
+      document.getElementById('climb-finish-overlay').classList.remove('show');
+      document.getElementById('climb-result-banner').style.display = 'none';
+      document.getElementById('climb-question-box').style.display = 'block';
+      document.getElementById('climb-player-name-hud').textContent = climbStudentName || 'Leo Núi';
+      document.getElementById('climb-step-display').textContent = '0';
+      document.getElementById('climb-total-display').textContent = climbTotalQ;
+      document.getElementById('climb-score-display').textContent = '—';
+
+      resizeClimbCanvas();
+      if (climbAnimFrame) cancelAnimationFrame(climbAnimFrame);
+      climbAnimFrame = requestAnimationFrame(climbDrawLoop);
+      setTimeout(() => showClimbQuestion(), 600);
+      refreshClimbHallOfFame();
+      return true;
+    }
+
+    function resizeClimbCanvas() {
+      climbMtnCanvas.width = window.innerWidth;
+      climbMtnCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', () => { if (climbActive) resizeClimbCanvas(); });
+
+    // ── Vẽ núi canvas ──
+    const climbBgImg = new Image();
+    let climbBgReady = false;
+    climbBgImg.onload = () => { climbBgReady = true; };
+    climbBgImg.src = 'assets/images/climb-bg.png';
+
+    function climbDrawLoop() {
+      if (!climbActive) return;
+      const W = climbMtnCanvas.width, H = climbMtnCanvas.height;
+      climbMtnCtx.clearRect(0, 0, W, H);
+
+      // Nền ảnh (giống style ảnh bạn gửi)
+      if (climbBgReady && climbBgImg.complete && climbBgImg.naturalWidth) {
+        const iw = climbBgImg.naturalWidth, ih = climbBgImg.naturalHeight;
+        // Vẽ ảnh theo kiểu COVER để không bị thu hẹp chiều ngang
+        const cover = Math.max(W / iw, H / ih);
+        const dw = iw * cover, dh = ih * cover;
+        const dx = (W - dw) / 2, dy = (H - dh) / 2;
+        climbMtnCtx.drawImage(climbBgImg, dx, dy, dw, dh);
+
+        // Vignette nhẹ để chữ nổi hơn
+        const vig = climbMtnCtx.createRadialGradient(W * 0.55, H * 0.35, Math.min(W, H) * 0.15, W * 0.55, H * 0.35, Math.min(W, H) * 0.75);
+        vig.addColorStop(0, 'rgba(0,0,0,0)');
+        vig.addColorStop(1, 'rgba(0,0,0,0.38)');
+        climbMtnCtx.fillStyle = vig;
+        climbMtnCtx.fillRect(0, 0, W, H);
+      } else {
+      // Bầu trời (tông cinematic + chiều sâu)
+      const sky = climbMtnCtx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#07152b');
+      sky.addColorStop(0.28, '#0b2d5f');
+      sky.addColorStop(0.62, '#1f6fb2');
+      sky.addColorStop(1, '#bfe9ff');
+      climbMtnCtx.fillStyle = sky;
+      climbMtnCtx.fillRect(0, 0, W, H);
+
+      // Ánh mặt trời + glow
+      const sunX = W * 0.82, sunY = H * 0.14;
+      const sunGlow = climbMtnCtx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.min(W, H) * 0.28);
+      sunGlow.addColorStop(0, 'rgba(255, 240, 180, 0.85)');
+      sunGlow.addColorStop(0.35, 'rgba(255, 220, 140, 0.22)');
+      sunGlow.addColorStop(1, 'rgba(255, 220, 140, 0)');
+      climbMtnCtx.fillStyle = sunGlow;
+      climbMtnCtx.fillRect(0, 0, W, H);
+
+      // Dãy núi xa (silhouette)
+      const farY = H * 0.48;
+      climbMtnCtx.fillStyle = 'rgba(4, 14, 25, 0.28)';
+      climbMtnCtx.beginPath();
+      climbMtnCtx.moveTo(0, farY);
+      climbMtnCtx.bezierCurveTo(W * 0.18, farY - H * 0.09, W * 0.34, farY + H * 0.03, W * 0.5, farY - H * 0.06);
+      climbMtnCtx.bezierCurveTo(W * 0.66, farY - H * 0.15, W * 0.82, farY + H * 0.02, W, farY - H * 0.08);
+      climbMtnCtx.lineTo(W, H);
+      climbMtnCtx.lineTo(0, H);
+      climbMtnCtx.closePath();
+      climbMtnCtx.fill();
+
+      // Mây trang trí
+      [[0.15,0.12],[0.72,0.08],[0.45,0.18],[0.88,0.15]].forEach(([fx,fy]) => {
+        climbMtnCtx.beginPath();
+        climbMtnCtx.ellipse(W*fx, H*fy, 75, 34, 0, 0, Math.PI*2);
+        climbMtnCtx.fillStyle = 'rgba(255,255,255,0.16)'; climbMtnCtx.fill();
+      });
+
+      // Mặt đất
+      const ground = climbMtnCtx.createLinearGradient(0, H*0.58, 0, H);
+      ground.addColorStop(0, '#1e6b4a');
+      ground.addColorStop(0.55, '#144a34');
+      ground.addColorStop(1, '#0b2c1f');
+      climbMtnCtx.fillStyle = ground; climbMtnCtx.fillRect(0, H*0.58, W, H);
+
+      // Sương nhẹ chân núi (tạo depth)
+      const mist = climbMtnCtx.createLinearGradient(0, H * 0.48, 0, H * 0.68);
+      mist.addColorStop(0, 'rgba(255,255,255,0)');
+      mist.addColorStop(0.55, 'rgba(255,255,255,0.14)');
+      mist.addColorStop(1, 'rgba(255,255,255,0)');
+      climbMtnCtx.fillStyle = mist;
+      climbMtnCtx.fillRect(0, H * 0.46, W, H * 0.26);
+
+      // Núi chính
+      const mCx = W/2, mBase = H*0.59, mTop = H*0.06, mW = W*0.44;
+      climbMtnCtx.beginPath();
+      climbMtnCtx.moveTo(mCx-mW, mBase);
+      climbMtnCtx.lineTo(mCx, mTop);
+      climbMtnCtx.lineTo(mCx+mW, mBase);
+      climbMtnCtx.closePath();
+      const mg = climbMtnCtx.createLinearGradient(mCx, mTop, mCx, mBase);
+      mg.addColorStop(0,'#ffffff');
+      mg.addColorStop(0.18,'#cfd8dc');
+      mg.addColorStop(0.55,'#7a8b93');
+      mg.addColorStop(1,'#2c3e50');
+      climbMtnCtx.fillStyle = mg; climbMtnCtx.fill();
+      // Tuyết
+      climbMtnCtx.beginPath();
+      climbMtnCtx.moveTo(mCx, mTop);
+      climbMtnCtx.lineTo(mCx-mW*0.14, mTop+(mBase-mTop)*0.2);
+      climbMtnCtx.lineTo(mCx+mW*0.14, mTop+(mBase-mTop)*0.2);
+      climbMtnCtx.closePath();
+      const snow = climbMtnCtx.createLinearGradient(mCx, mTop, mCx, mTop + (mBase - mTop) * 0.22);
+      snow.addColorStop(0, 'rgba(255,255,255,1)');
+      snow.addColorStop(1, 'rgba(235,245,255,0.92)');
+      climbMtnCtx.fillStyle = snow;
+      climbMtnCtx.fill();
+      }
+
+      // Mốc chặng
+      const steps = climbTotalQ;
+      const stagePoints = [];
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const side = (i % 2 === 0) ? 1 : -1;
+        const sx = mCx + mW * 0.78 * (0.5 - t) * side;
+        const sy = mBase + (mTop - mBase) * t;
+        stagePoints.push({sx, sy});
+        const done = i <= climbSuccessCount, cur = i === climbSuccessCount;
+        climbMtnCtx.beginPath();
+        climbMtnCtx.arc(sx, sy, cur ? 16 : 11, 0, Math.PI*2);
+        climbMtnCtx.fillStyle = done ? '#FFD700' : (cur ? '#FF8F00' : 'rgba(255,255,255,0.4)');
+        climbMtnCtx.fill();
+        climbMtnCtx.strokeStyle = cur ? 'white' : 'rgba(0,0,0,0.25)';
+        climbMtnCtx.lineWidth = 2.5; climbMtnCtx.stroke();
+        if (i > 0) {
+          climbMtnCtx.fillStyle = done ? '#7f3f00' : '#fff';
+          climbMtnCtx.font = 'bold 12px "Times New Roman", Times, serif';
+          climbMtnCtx.textAlign = 'center'; climbMtnCtx.textBaseline = 'middle';
+          climbMtnCtx.fillText('C' + i, sx, sy);
+        }
+      }
+
+      // Nhân vật
+      climbCharY += (climbCharYTarget - climbCharY) * 0.07;
+      const pt = stagePoints[Math.min(climbSuccessCount, stagePoints.length-1)];
+      const charDispX = pt.sx + (climbCharYTarget - climbCharY) * 10;
+      const charDispY = pt.sy + (climbCharY - climbCharYTarget) * 10;
+      climbMtnCtx.beginPath();
+      climbMtnCtx.ellipse(charDispX, charDispY+30, 16, 6, 0, 0, Math.PI*2);
+      climbMtnCtx.fillStyle = 'rgba(0,0,0,0.22)'; climbMtnCtx.fill();
+      climbMtnCtx.font = '38px "Times New Roman", Times, serif';
+      climbMtnCtx.textAlign = 'center'; climbMtnCtx.textBaseline = 'bottom';
+      climbMtnCtx.fillText('🧗', charDispX, charDispY+8);
+
+      // Tên học sinh trên núi
+      if (climbStudentName) {
+        climbMtnCtx.font = 'bold 20px "Times New Roman", Times, serif';
+        climbMtnCtx.fillStyle = '#FFD700';
+        climbMtnCtx.strokeStyle = 'rgba(0,0,0,0.7)';
+        climbMtnCtx.lineWidth = 4;
+        climbMtnCtx.textAlign = 'center'; climbMtnCtx.textBaseline = 'bottom';
+        climbMtnCtx.strokeText(climbStudentName, charDispX, charDispY - 12);
+        climbMtnCtx.fillText(climbStudentName, charDispX, charDispY - 12);
+      }
+
+      // Cờ đích
+      climbMtnCtx.font = '30px "Times New Roman", Times, serif'; climbMtnCtx.textAlign = 'center';
+      climbMtnCtx.fillText('🚩', mCx, mTop - 8);
+
+      // Thanh tiến trình
+      const bW = Math.min(380, W*0.45), bX = W/2-bW/2, bY = H-28, bH = 12;
+      climbMtnCtx.fillStyle = 'rgba(0,0,0,0.35)';
+      climbMtnCtx.beginPath(); climbMtnCtx.roundRect(bX, bY, bW, bH, 6); climbMtnCtx.fill();
+      const prog = steps > 0 ? climbSuccessCount/steps : 0;
+      climbMtnCtx.fillStyle = prog===1 ? '#FFD700' : '#69f0ae';
+      climbMtnCtx.beginPath(); climbMtnCtx.roundRect(bX, bY, bW*prog, bH, 6); climbMtnCtx.fill();
+
+      climbAnimFrame = requestAnimationFrame(climbDrawLoop);
+    }
+
+    // ── Hiển thị câu hỏi ──
+    function showClimbQuestion() {
+      if (!climbActive || climbCurrentStep >= climbTotalQ) return;
+      climbCurrentQ = climbQueue[climbCurrentStep];
+      climbAnswered = false;
+      document.getElementById('climb-question-text').textContent =
+        `Câu ${climbCurrentStep+1}/${climbTotalQ}: ${climbCurrentQ.question}`;
+      document.getElementById('climb-step-display').textContent = climbCurrentStep;
+      const opts = document.querySelectorAll('.climb-option');
+      ['a','b','c','d'].forEach((k,i) => {
+        opts[i].textContent = `${['A','B','C','D'][i]}. ${climbCurrentQ[k]}`;
+        opts[i].classList.remove('correct','wrong');
+        opts[i].style.pointerEvents = 'all';
+      });
+    }
+
+    // ── Xử lý chọn đáp án ──
+    document.querySelectorAll('.climb-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (climbAnswered || !climbCurrentQ) return;
+        climbAnswered = true;
+        document.querySelectorAll('.climb-option').forEach(o => o.style.pointerEvents='none');
+        const correct = opt.dataset.choice === climbCurrentQ.correct;
+
+        if (correct) {
+          opt.classList.add('correct');
+          if (audioUnlocked) correctAudio.play().catch(()=>{});
+          climbSuccessCount++;
+          climbCurrentStep++;
+          climbCharYTarget = climbSuccessCount / climbTotalQ;
+          showBanner('✅','Đúng rồi! Leo thêm một chặng!',`Chặng ${climbSuccessCount}/${climbTotalQ}`, false);
+          setTimeout(() => {
+            hideBanner();
+            document.getElementById('climb-step-display').textContent = climbCurrentStep;
+            if (climbCurrentStep >= climbTotalQ) finishClimbGame();
+            else showClimbQuestion();
+          }, 1800);
+        } else {
+          opt.classList.add('wrong');
+          if (audioUnlocked) wrongAudio.play().catch(()=>{});
+          document.querySelectorAll('.climb-option').forEach(o => {
+            if (o.dataset.choice === climbCurrentQ.correct) o.classList.add('correct');
+          });
+          climbCurrentStep++;
+          showBanner('❌','Sai rồi! Trơn chân!',`Đáp án đúng: ${climbCurrentQ.correct}`, true);
+          setTimeout(() => {
+            hideBanner();
+            document.getElementById('climb-step-display').textContent = climbCurrentStep;
+            if (climbCurrentStep >= climbTotalQ) finishClimbGame();
+            else showClimbQuestion();
+          }, 2200);
+        }
+      });
+    });
+
+    function showBanner(emoji, text, sub, isWrong) {
+      const b = document.getElementById('climb-result-banner');
+      b.style.background = isWrong ? 'linear-gradient(135deg,#7f0000,#c62828)' : '';
+      b.style.borderColor = isWrong ? '#ff6b6b' : '';
+      document.getElementById('climb-result-emoji').textContent = emoji;
+      document.getElementById('climb-result-text').textContent = text;
+      document.getElementById('climb-result-sub').textContent = sub;
+      b.style.display = 'block';
+    }
+    function hideBanner() {
+      const b = document.getElementById('climb-result-banner');
+      b.style.display = 'none'; b.style.background = ''; b.style.borderColor = '';
+    }
+
+    // ── Kết thúc game ──
+    function finishClimbGame() {
+      const allCorrect = climbSuccessCount === climbTotalQ;
+      const earned = allCorrect ? climbMaxScore
+        : Math.round(climbMaxScore * climbSuccessCount / climbTotalQ * 10) / 10;
+      document.getElementById('climb-step-display').textContent = climbTotalQ;
+      document.getElementById('climb-score-display').textContent = earned;
+      document.getElementById('climb-question-box').style.display = 'none';
+
+      const overlay = document.getElementById('climb-finish-overlay');
+      overlay.querySelector('.finish-emoji').textContent = allCorrect ? '🏆' : (climbSuccessCount > 0 ? '🎯' : '😅');
+      document.getElementById('climb-finish-title').textContent =
+        allCorrect ? `${climbStudentName || 'Học sinh'} Chinh Phục Đỉnh Núi!`
+        : `${climbStudentName || 'Học sinh'}: ${climbSuccessCount}/${climbTotalQ} câu đúng`;
+      document.getElementById('climb-finish-score').textContent =
+        `Điểm: ${earned} / ${climbMaxScore}`;
+      overlay.classList.add('show');
+      if (allCorrect && climbStudentName && !climbWinners.includes(climbStudentName)) {
+        climbWinners.push(climbStudentName);
+        climbWinnersByClass[getActiveClass()?.id || 'class_default'] = climbWinners;
+        saveClimbWinnersByClass();
+        refreshClimbHallOfFame();
+      }
+      if (allCorrect && audioUnlocked) cheerAudio.play().catch(()=>{});
+    }
+
+    // ── Nút "Về Màn Chính" ──
+    document.getElementById('climb-exit-btn').onclick = () => closeClimbGame(true);
+
+    // ── Nút X thoát ──
+    document.getElementById('climb-close-btn').onclick = () => {
+      if (confirm('Thoát trò chơi Leo Núi?')) closeClimbGame(true);
+    };
+
+    function closeClimbGame(keepMode) {
+      climbActive = false;
+      climbGameEl.classList.remove('show');
+      if (climbSetupTimer) { clearTimeout(climbSetupTimer); climbSetupTimer = null; }
+      if (climbAnimFrame) { cancelAnimationFrame(climbAnimFrame); climbAnimFrame = null; }
+      document.getElementById('climb-finish-overlay').classList.remove('show');
+      document.getElementById('climb-question-box').style.display = 'block';
+      hideBanner();
+      // Giữ chế độ leo núi nếu keepMode=true để GV tiếp tục gọi HS khác
+      if (!keepMode) {
+        climbModeEnabled = false;
+        toggleClimbBtn.textContent = '⛰️ Leo Núi';
+        toggleClimbBtn.classList.remove('active-game');
+      }
+    }
+    // ============================================================
+
   </script>
+
 </body>
 </html>
